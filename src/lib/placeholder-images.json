@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "smoky-bbq-ribs",
+      "description": "A rack of smoky BBQ ribs, glazed and grilled to perfection.",
+      "imageUrl": "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxiYnElMjByaWJzfGVufDB8fHx8MTc2OTI3MzA3NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bbq ribs"
+    },
+    {
+      "id": "grilled-chicken-sandwich",
+      "description": "Juicy grilled chicken breast with lettuce, tomato, and our special sauce on a brioche bun.",
+      "imageUrl": "https://images.unsplash.com/photo-1666819604716-7b60a604bb76?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjaGlja2VuJTIwc2FuZHdpY2h8ZW58MHx8fHwxNzY5MTk1NDcwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "chicken sandwich"
+    },
+    {
+      "id": "classic-beef-burger",
+      "description": "A classic beef burger with cheese, pickles, onions, and a toasted sesame seed bun.",
+      "imageUrl": "https://images.unsplash.com/photo-1543392765-620e968d2162?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxiZWVmJTIwYnVyZ2VyfGVufDB8fHx8MTc2OTI3MzA3NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "beef burger"
+    },
+    {
+      "id": "veggie-skewer",
+      "description": "Colorful skewers of grilled vegetables, including bell peppers, zucchini, and onions.",
+      "imageUrl": "https://images.unsplash.com/photo-1715793797560-7b015218cb13?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx2ZWdldGFibGUlMjBza2V3ZXJ8ZW58MHx8fHwxNzY5MjczMDc0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "vegetable skewer"
+    },
+    {
+      "id": "loaded-fries",
+      "description": "Crispy french fries loaded with melted cheese, bacon bits, and green onions.",
+      "imageUrl": "https://images.unsplash.com/photo-1485962398705-ef6a13c41e8f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxsb2FkZWQlMjBmcmllc3xlbnwwfHx8fDE3NjkyNzMwNzR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "loaded fries"
+    },
+    {
+      "id": "grilled-corn",
+      "description": "Corn on the cob grilled and smothered in a chili-lime butter.",
+      "imageUrl": "https://images.unsplash.com/photo-1708077810728-b370b167952d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxncmlsbGVkJTIwY29ybnxlbnwwfHx8fDE3NjkyNzMwNzR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "grilled corn"
+    }
+  ]
 }
