@@ -52,7 +52,7 @@ export default function CustomerView({ tableId }: { tableId: string | null }) {
     <>
       <Header tableId={tableId} onCartClick={() => setCartOpen(true)} />
       <main className="container mx-auto px-4 md:px-6 py-12">
-        <Accordion type="multiple" defaultValue={categorizedMenu.map(c => c.category)} className="w-full space-y-8">
+        <Accordion type="multiple" className="w-full space-y-8">
           {categorizedMenu.map(({ category, items }) => (
             <AccordionItem value={category} key={category} className="border-b-0">
               <AccordionTrigger className="text-4xl font-extrabold text-foreground border-b-4 border-foreground pb-2 hover:no-underline">
