@@ -1,0 +1,171 @@
+{
+  "entities": {
+    "MenuItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MenuItem",
+      "type": "object",
+      "description": "Represents an item on the restaurant's menu.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the menu item."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the menu item."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the menu item."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the menu item in INR."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the image representing the menu item."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the menu item (e.g., Appetizer, Main Course, Dessert)."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "price",
+        "imageUrl",
+        "category"
+      ]
+    },
+    "Order": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Order",
+      "type": "object",
+      "description": "Represents a customer order.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the order."
+        },
+        "tableId": {
+          "type": "string",
+          "description": "Identifier of the table that placed the order."
+        },
+        "itemIds": {
+          "type": "array",
+          "description": "References to MenuItems. (Relationship: Order 1:N MenuItem)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "totalPrice": {
+          "type": "number",
+          "description": "Total price of the order in INR."
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the order (e.g., Placed, Preparing, Served, Completed)."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp indicating when the order was placed.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "tableId",
+        "itemIds",
+        "totalPrice",
+        "status",
+        "timestamp"
+      ]
+    },
+    "Table": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Table",
+      "type": "object",
+      "description": "Represents a table in the restaurant.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the table."
+        },
+        "tableNumber": {
+          "type": "string",
+          "description": "Table Number."
+        }
+      },
+      "required": [
+        "id",
+        "tableNumber"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/menu_items/{menuItemId}",
+        "definition": {
+          "entityName": "MenuItem",
+          "schema": {
+            "$ref": "#/backend/entities/MenuItem"
+          },
+          "description": "Stores all menu items available in the restaurant.",
+          "params": [
+            {
+              "name": "menuItemId",
+              "description": "Unique identifier for the menu item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/tables/{tableId}",
+        "definition": {
+          "entityName": "Table",
+          "schema": {
+            "$ref": "#/backend/entities/Table"
+          },
+          "description": "Stores table information.",
+          "params": [
+            {
+              "name": "tableId",
+              "description": "Unique identifier for the table."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/tables/{tableId}/orders/{orderId}",
+        "definition": {
+          "entityName": "Order",
+          "schema": {
+            "$ref": "#/backend/entities/Order"
+          },
+          "description": "Stores orders placed by each table.",
+          "params": [
+            {
+              "name": "tableId",
+              "description": "Unique identifier for the table."
+            },
+            {
+              "name": "orderId",
+              "description": "Unique identifier for the order."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support the Grillicious application's core features, focusing on simplicity, security, and scalability. The structure leverages path-based ownership for tables and orders and a global collection for menu items. This approach ensures clear ownership and efficient querying.\n\n**Authorization Independence and QAPs:**\n\n*   **Orders Subcollection under Tables:** Orders are stored as a subcollection under the `/tables/{tableId}` collection. This inherently creates a path-based ownership model, simplifying security rules. Table entities act as a segregation mechanism. Since there's only one level of access for an order (placed by the table it belongs to), no further segregation is required.\n\n*   **Menu Items:** Menu items are placed in a global collection `/menu_items`. Since the application does not have roles (except the admin), there is no need for further segregation.\n\n**Justification:**\n\n*   The use of path-based ownership for orders simplifies security rules, ensuring that only the table itself can create orders under its path. This design avoids complex authorization logic and ensures data integrity.\n\n*   Storing orders within tables provides a clear and intuitive structure for querying and managing orders related to specific tables.\n\n*   This design minimizes the need for complex queries or aggregations to retrieve data, as related information is co-located within the same path."
+  }
+}

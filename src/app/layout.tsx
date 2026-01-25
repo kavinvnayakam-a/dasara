@@ -1,6 +1,7 @@
-import type {Metadata} from 'next';
+import type { Metadata } from 'next';
 import './globals.css';
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "@/components/ui/toaster";
+import { CartProvider } from '@/context/cart-context'; // Import the provider
 
 export const metadata: Metadata = {
   title: 'Grillicious',
@@ -20,8 +21,11 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased font-bold">
-        {children}
-        <Toaster />
+        {/* Wrap everything in the CartProvider */}
+        <CartProvider>
+          {children}
+          <Toaster />
+        </CartProvider>
       </body>
     </html>
   );

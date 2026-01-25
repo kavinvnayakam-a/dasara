@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useMemo, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; // Added for redirection
 import { useSessionTimer } from '@/hooks/use-session-timer';
 import { useCart } from '@/hooks/use-cart';
 import { menuItems } from '@/lib/menu-data';
@@ -11,7 +10,6 @@ import { CartSheet } from '@/components/cart-sheet';
 import { CartIcon } from '@/components/cart-icon';
 import TableSelection from './table-selection';
 import type { MenuItem } from '@/lib/types';
-import Link from 'next/link';
 import {
   Accordion,
   AccordionContent,
@@ -19,20 +17,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 export default function CustomerView({ tableId }: { tableId: string | null }) {
-  const router = useRouter(); // Initialize router
   const { clearCart, addToCart } = useCart();
   const [isCartOpen, setCartOpen] = useState(false);
   const { toast } = useToast();
 
-  // Updated: When timer hits zero, clear cart and move to the Thanks page
-  const { timeLeft } = useSessionTimer(() => {
-    clearCart();
-    router.push('/thanks');
-  });
+  const { timeLeft } = useSessionTimer(clearCart);
 
-  // Trigger themed toast on mobile session start
   useEffect(() => {
     if (tableId && typeof window !== 'undefined' && window.innerWidth < 768) {
       toast({
@@ -69,12 +62,10 @@ export default function CustomerView({ tableId }: { tableId: string | null }) {
   }
 
   return (
-    // Background color set to your specific mustard yellow #d4af37
-    <div className="min-h-screen bg-[#d4af37] font-sans selection:bg-zinc-900 selection:text-white">
+    <div className="min-h-screen bg-[#d4af37] font-sans flex flex-col">
       <Header tableId={tableId} onCartClick={() => setCartOpen(true)} timeLeft={timeLeft} />
       
-      <main className="container mx-auto px-4 py-8 pb-32">
-        {/* Mobile-First Branding Header */}
+      <main className="container mx-auto px-4 py-8 flex-1">
         <header className="mb-10 text-center md:text-left">
           <h1 className="text-5xl font-black uppercase italic tracking-tighter text-zinc-900 leading-none">
             Menu
@@ -86,12 +77,7 @@ export default function CustomerView({ tableId }: { tableId: string | null }) {
 
         <Accordion type="multiple" defaultValue={[]} className="w-full space-y-4">
           {categorizedMenu.map(({ category, items }) => (
-            <AccordionItem 
-              value={category} 
-              key={category} 
-              className="border-none"
-            >
-              {/* Category Bar: Solid Black with white text for high contrast */}
+            <AccordionItem value={category} key={category} className="border-none">
               <AccordionTrigger className="flex px-6 py-4 bg-zinc-900 text-white rounded-xl shadow-[4px_4px_0_0_#00000040] hover:no-underline transition-transform active:scale-[0.98]">
                 <div className="flex items-center gap-4">
                   <span className="text-xl font-black uppercase italic tracking-tight">
@@ -106,15 +92,8 @@ export default function CustomerView({ tableId }: { tableId: string | null }) {
               <AccordionContent className="pt-6 px-1">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {items.map((item) => (
-                    /* White Card Container to pop against the yellow bg */
-                    <div 
-                      key={item.id} 
-                      className="bg-white rounded-3xl p-2 shadow-xl border-2 border-zinc-900/5"
-                    >
-                      <MenuItemCard 
-                        item={item} 
-                        onAddToCart={addToCart} 
-                      />
+                    <div key={item.id} className="bg-white rounded-3xl p-2 shadow-xl border-2 border-zinc-900/5">
+                      <MenuItemCard item={item} onAddToCart={addToCart} />
                     </div>
                   ))}
                 </div>
@@ -138,6 +117,7 @@ export default function CustomerView({ tableId }: { tableId: string | null }) {
           <Link 
             href="https://www.getpik.in/" 
             target="_blank" 
+            rel="noopener noreferrer"
             className="group flex flex-col items-center gap-2 transition-transform hover:scale-105"
           >
             <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-500 group-hover:text-[#d4af37] transition-colors">
@@ -155,12 +135,8 @@ export default function CustomerView({ tableId }: { tableId: string | null }) {
         </div>
       </footer>
 
-      {/* Cart Logic Components */}
       <CartSheet isOpen={isCartOpen} onOpenChange={setCartOpen} tableId={tableId} />
-      
-      {/* NEW: Standalone Floating Cart Icon */}
       <CartIcon onOpen={() => setCartOpen(true)} />
-      
     </div>
   );
 }

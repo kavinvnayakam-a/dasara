@@ -3,87 +3,64 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { haversineDistance } from "@/lib/utils";
-import { Loader2, Unlock } from "lucide-react";
-
-// Hardcoded restaurant location (e.g., Googleplex)
-const RESTAURANT_LOCATION = {
-  latitude: 37.422,
-  longitude: -122.084,
-};
-const MAX_DISTANCE_METERS = 100;
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Loader2, Unlock, ShieldCheck } from "lucide-react";
 
 export default function LoginForm() {
   const router = useRouter();
-  const { toast } = useToast();
   const [, setAuth] = useLocalStorage('grillicious-admin-auth', false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleDevLogin = () => {
     setIsLoading(true);
-
-    if (!navigator.geolocation) {
-      toast({
-        variant: "destructive",
-        title: "Geolocation Error",
-        description: "Geolocation is not supported by your browser.",
-      });
-      setIsLoading(false);
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        const distance = haversineDistance(
-          latitude,
-          longitude,
-          RESTAURANT_LOCATION.latitude,
-          RESTAURANT_LOCATION.longitude
-        );
-
-        if (distance <= MAX_DISTANCE_METERS) {
-          toast({
-            title: "Access Granted",
-            description: "Welcome to the admin dashboard.",
-          });
-          setAuth(true);
-          router.push("/admin");
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Access Denied",
-            description: `You must be within ${MAX_DISTANCE_METERS} meters of the restaurant. You are ${Math.round(distance)}m away.`,
-          });
-          setIsLoading(false);
-        }
-      },
-      (error) => {
-        toast({
-          variant: "destructive",
-          title: "Geolocation Error",
-          description: error.message,
-        });
-        setIsLoading(false);
-      },
-      { enableHighAccuracy: true }
-    );
+    
+    // Simulate a quick check for a better UX
+    setTimeout(() => {
+      setAuth(true);
+      router.push("/admin");
+    }, 500);
   };
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Grillicious Admin</CardTitle>
-        <CardDescription>Login requires you to be at the restaurant location.</CardDescription>
+    <Card className="w-full max-w-md border-4 border-zinc-900 bg-white shadow-[12px_12px_0px_0px_#18181b] rounded-[2.5rem] overflow-hidden">
+      <CardHeader className="text-center pt-10 pb-6">
+        <div className="mx-auto bg-zinc-900 p-4 rounded-2xl w-fit mb-4">
+          <ShieldCheck className="w-8 h-8 text-[#d4af37]" />
+        </div>
+        <CardTitle className="text-4xl font-black uppercase italic tracking-tighter text-zinc-900 leading-none">
+          Admin Portal
+        </CardTitle>
+        <CardDescription className="text-xs font-bold text-zinc-400 uppercase tracking-widest mt-3">
+          Development Mode Active
+        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Button onClick={handleLogin} disabled={isLoading} className="w-full h-12 text-lg">
-          {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Unlock className="mr-2 h-5 w-5" />}
-          Verify Location & Login
+
+      <CardContent className="p-8 space-y-6">
+        <div className="bg-zinc-50 border-2 border-dashed border-zinc-200 rounded-2xl p-4 text-center">
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-tight">
+            Geolocation security is currently disabled for development.
+          </p>
+        </div>
+
+        <Button 
+          onClick={handleDevLogin} 
+          disabled={isLoading} 
+          className="w-full h-16 text-lg font-black uppercase tracking-widest bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl shadow-[4px_4px_0px_0px_#d4af37] active:shadow-none active:translate-y-1 transition-all"
+        >
+          {isLoading ? (
+            <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+          ) : (
+            <>
+              <Unlock className="mr-2 h-6 w-6 text-[#d4af37]" />
+              Enter Dashboard
+            </>
+          )}
         </Button>
+        
+        <p className="text-[9px] text-center text-zinc-400 font-bold uppercase tracking-widest">
+          Grillicious Management System v1.0
+        </p>
       </CardContent>
     </Card>
   );

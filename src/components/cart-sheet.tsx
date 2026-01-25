@@ -1,6 +1,6 @@
 "use client"
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { formatCurrency } from "@/lib/utils";
@@ -8,7 +8,7 @@ import type { Order } from "@/lib/types";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 
 type CartSheetProps = {
   isOpen: boolean;
@@ -32,8 +32,8 @@ export function CartSheet({ isOpen, onOpenChange, tableId }: CartSheetProps) {
     };
     setOrders(prevOrders => [...prevOrders, newOrder]);
     toast({
-      title: "Order Placed!",
-      description: "Your order has been sent to the kitchen.",
+      title: "Order Received! 🔥",
+      description: "We're starting on your food right now.",
     });
     clearCart();
     onOpenChange(false);
@@ -41,45 +41,94 @@ export function CartSheet({ isOpen, onOpenChange, tableId }: CartSheetProps) {
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent className="flex flex-col bg-card border-l-4 border-foreground text-foreground w-full sm:max-w-md">
-        <SheetHeader>
-          <SheetTitle className="text-2xl text-foreground">Your Order</SheetTitle>
+      {/* KEY CHANGE: 
+          - Changed w-full to w-[80vw] for mobile
+          - border-l-4 adds that theme color strip
+      */}
+      <SheetContent 
+        side="right" 
+        className="flex flex-col bg-zinc-900 border-l-4 border-[#d4af37] text-white w-[80vw] sm:max-w-md p-0"
+      >
+        
+        <SheetHeader className="p-6 border-b border-zinc-800">
+          <SheetTitle className="text-xl font-black uppercase italic tracking-tighter text-white flex items-center gap-2">
+            <ShoppingBag className="text-[#d4af37] h-5 w-5" /> Your Order
+          </SheetTitle>
         </SheetHeader>
-        <div className="flex-1 overflow-y-auto -mx-6 px-6">
+
+        <div className="flex-1 overflow-y-auto px-4">
           {cartItems.length === 0 ? (
-            <p className="text-center text-muted-foreground mt-10">Your cart is empty.</p>
+            <div className="flex flex-col items-center justify-center h-full opacity-30 space-y-4">
+              <ShoppingBag size={40} />
+              <p className="text-center font-bold uppercase tracking-widest text-[10px]">Empty</p>
+            </div>
           ) : (
-            <div className="divide-y-2 divide-foreground/20">
+            <div className="divide-y divide-zinc-800">
               {cartItems.map((item) => (
-                <div key={item.id} className="flex items-center gap-4 py-4">
-                  <Image src={item.image} alt={item.name} width={64} height={64} className="rounded-md border-2 border-foreground" data-ai-hint={item.imageHint}/>
-                  <div className="flex-1">
-                    <p className="font-bold">{item.name}</p>
-                    <p className="text-sm">{formatCurrency(item.price)}</p>
+                <div key={item.id} className="flex items-center gap-3 py-5">
+                  <div className="relative h-14 w-14 shrink-0">
+                    <Image 
+                      src={item.image} 
+                      alt={item.name} 
+                      fill 
+                      className="rounded-lg object-cover border border-zinc-700"
+                    />
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <p className="font-black uppercase italic tracking-tight text-xs truncate leading-none mb-1">
+                      {item.name}
+                    </p>
+                    <p className="text-emerald-500 font-bold text-xs">
+                      {formatCurrency(item.price)}
+                    </p>
+                    
                     <div className="flex items-center gap-2 mt-2">
-                      <Button size="icon" variant="outline" className="h-8 w-8 rounded-full border-2 border-foreground" onClick={() => updateQuantity(item.id, item.quantity - 1)}><Minus className="h-4 w-4"/></Button>
-                      <span>{item.quantity}</span>
-                      <Button size="icon" variant="outline" className="h-8 w-8 rounded-full border-2 border-foreground" onClick={() => updateQuantity(item.id, item.quantity + 1)}><Plus className="h-4 w-4"/></Button>
+                      <div className="flex items-center bg-zinc-800 rounded border border-zinc-700">
+                        <button 
+                          className="p-1 hover:text-[#d4af37]"
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        >
+                          <Minus className="h-3 w-3"/>
+                        </button>
+                        <span className="w-6 text-center font-bold text-[10px]">{item.quantity}</span>
+                        <button 
+                          className="p-1 hover:text-[#d4af37]"
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        >
+                          <Plus className="h-3 w-3"/>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <Button size="icon" variant="ghost" className="text-muted-foreground hover:text-destructive" onClick={() => removeFromCart(item.id)}><Trash2 className="h-5 w-5"/></Button>
+
+                  <button 
+                    className="p-1 text-zinc-600"
+                    onClick={() => removeFromCart(item.id)}
+                  >
+                    <Trash2 className="h-4 w-4"/>
+                  </button>
                 </div>
               ))}
             </div>
           )}
         </div>
+
         {cartItems.length > 0 && (
-          <SheetFooter className="border-t-4 border-foreground -mx-6 px-6 pt-4 mt-auto">
+          <SheetFooter className="bg-zinc-800/80 p-5 mt-auto">
             <div className="w-full space-y-4">
-              <div className="flex justify-between items-center text-xl font-bold">
-                <span>Total:</span>
-                <span>{formatCurrency(cartTotal)}</span>
+              <div className="flex flex-col gap-0 text-center">
+                <span className="text-[8px] font-black uppercase tracking-[0.4em] text-zinc-500">Total</span>
+                <div className="text-3xl font-black text-emerald-500 tracking-tighter tabular-nums">
+                  {formatCurrency(cartTotal)}
+                </div>
               </div>
+              
               <Button
                 onClick={handlePlaceOrder}
-                className="w-full h-14 text-lg bg-primary text-primary-foreground border-2 border-foreground shadow-[4px_4px_0px_#000] hover:shadow-[6px_6px_0px_#000] active:shadow-[2px_2px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+                className="w-full h-14 text-sm font-black uppercase italic tracking-widest bg-[#d4af37] text-zinc-900 hover:bg-white rounded-xl shadow-lg active:scale-95 transition-all"
               >
-                Place Order
+                Order Now
               </Button>
             </div>
           </SheetFooter>

@@ -20,7 +20,7 @@ export function Header({ tableId, timeLeft }: HeaderProps) {
             Grillicious
           </span>
           <span className="text-[8px] font-bold text-[#d4af37] uppercase tracking-widest mt-0.5">
-            Street Food
+            Est 2025
           </span>
         </div>
 
