@@ -1,8 +1,8 @@
 export const firebaseConfig = {
-  "projectId": "studio-785119138-12545",
-  "appId": "1:987176042871:web:5588822c48db170bd92172",
-  "apiKey": "AIzaSyDNMJVEJ5cMX1-45x-_RxFzI5IeltSm74M",
-  "authDomain": "studio-785119138-12545.firebaseapp.com",
-  "measurementId": "",
-  "messagingSenderId": "987176042871"
+  "projectId": "grillicious-backend",
+  "appId": "1:298907118316:web:9ae9bb6c11b5f91fc553c9",
+  "apiKey": "AIzaSyDq3uj_iKP3BON4btk5k6FnvhZwpKqmdiE",
+  "authDomain": "grillicious-backend.firebaseapp.com",
+  "measurementId": "G-KSEY1B1TMT",
+  "messagingSenderId": "298907118316"
 };
