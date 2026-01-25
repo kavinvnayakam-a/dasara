@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { db } from '@/firebase/config';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { ChefHat, CheckCircle2, Timer, Zap, Play, Clock } from 'lucide-react';
 
 interface GrillPipe {
@@ -13,9 +13,10 @@ interface GrillPipe {
   passed: boolean;
 }
 
-export default function OrderStatusPage({ params }: { params: { id: string } }) {
+export default function OrderStatusPage() {
   const router = useRouter();
-  const { id } = params;
+  const params = useParams();
+  const id = params.id as string;
   const [status, setStatus] = useState('Pending');
   const [orderData, setOrderData] = useState<any>(null);
   const [score, setScore] = useState(0);
