@@ -6,14 +6,14 @@ import { collection, onSnapshot, updateDoc, doc, deleteDoc, addDoc, serverTimest
 import { uploadMenuImage } from '@/lib/upload-image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Camera, Loader2, Image as ImageIcon, Plus } from 'lucide-react';
+import { Trash2, Camera, Loader2, Image as ImageIcon, Plus, X, RefreshCw } from 'lucide-react';
+import { MenuItem } from '@/lib/types';
 
 export default function MenuManager() {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
 
-  // 1. Fetch live data
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "menu_items"), (snapshot) => {
       setItems(snapshot.docs.map(doc => ({ 
@@ -24,34 +24,54 @@ export default function MenuManager() {
     return () => unsubscribe();
   }, []);
 
-  // 2. Toggle Sold Out Status
   const toggleStatus = async (item: MenuItem) => {
     const itemRef = doc(db, "menu_items", item.id);
     await updateDoc(itemRef, { available: !item.available });
   };
 
-  // 3. Handle Add Item
+  const handleRemoveImage = async (itemId: string) => {
+    if (!confirm("Remove this image? The item will stay on the menu.")) return;
+    try {
+      const itemRef = doc(db, "menu_items", itemId);
+      await updateDoc(itemRef, { image: "" });
+    } catch (err) {
+      console.error("Error removing image:", err);
+    }
+  };
+
+  const handleUpdateImage = async (itemId: string, newFile: File) => {
+    setIsUploading(true);
+    try {
+      const imageUrl = await uploadMenuImage(newFile);
+      if (imageUrl) {
+        const itemRef = doc(db, "menu_items", itemId);
+        await updateDoc(itemRef, { image: imageUrl });
+      }
+    } catch (err) {
+      console.error("Error updating image:", err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleAddItem = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsUploading(true);
     const formData = new FormData(e.currentTarget);
-    
     try {
       let imageUrl = "";
       if (file) {
         imageUrl = await uploadMenuImage(file) || "";
       }
-
       await addDoc(collection(db, "menu_items"), {
         name: formData.get("name"),
         price: Number(formData.get("price")),
         category: formData.get("category"),
-        description: formData.get("description"),
+        description: "",
         image: imageUrl,
         available: true,
         timestamp: serverTimestamp()
       });
-      
       setFile(null);
       (e.target as HTMLFormElement).reset();
     } catch (err) {
@@ -76,7 +96,7 @@ export default function MenuManager() {
           <div className="relative">
             <label className="flex items-center justify-center w-full h-10 border-2 border-dashed border-zinc-300 rounded-xl cursor-pointer hover:bg-zinc-50 transition-all">
               <Camera className="w-4 h-4 mr-2" />
-              <span className="text-[10px] font-bold uppercase">{file ? "Image Ready" : "Upload Photo"}</span>
+              <span className="text-[10px] font-bold uppercase">{file ? "Ready" : "Upload Photo"}</span>
               <input type="file" className="hidden" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
             </label>
           </div>
@@ -92,29 +112,74 @@ export default function MenuManager() {
         <table className="w-full text-left">
           <thead className="bg-zinc-900 text-white text-[10px] font-black uppercase tracking-[0.2em]">
             <tr>
-              <th className="p-6">Dish</th>
+              <th className="p-6">Dish & Image</th>
               <th className="p-6">Price</th>
               <th className="p-6">Stock Status</th>
-              <th className="p-6 text-right">Delete</th>
+              <th className="p-6 text-right">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y-2 divide-zinc-100">
             {items.map((item) => (
               <tr key={item.id} className={`group transition-opacity ${!item.available ? "bg-zinc-50 opacity-60" : ""}`}>
                 <td className="p-4 flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-zinc-100 border-2 border-zinc-900 overflow-hidden shrink-0 shadow-sm">
-                    {item.image ? (
-                      <img src={item.image} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-zinc-300"><ImageIcon /></div>
+                  {/* Image Container */}
+                  <div className="relative w-20 h-20 shrink-0">
+                    <div className="w-full h-full rounded-2xl bg-zinc-100 border-2 border-zinc-900 overflow-hidden shadow-sm relative">
+                      {item.image ? (
+                        <img src={item.image} className="w-full h-full object-cover" alt={item.name} />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-zinc-300">
+                          <ImageIcon size={24} />
+                        </div>
+                      )}
+
+                      {/* Upload/Swap Overlay (Clicking this triggers file input) */}
+                      <label className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white opacity-0 hover:opacity-100 cursor-pointer transition-opacity z-10">
+                        <RefreshCw size={20} className={isUploading ? "animate-spin" : ""} />
+                        <span className="text-[8px] font-bold uppercase mt-1">Swap</span>
+                        <input 
+                          type="file" 
+                          className="hidden" 
+                          accept="image/*" 
+                          onChange={(e) => {
+                            const newFile = e.target.files?.[0];
+                            if (newFile) handleUpdateImage(item.id, newFile);
+                          }} 
+                        />
+                      </label>
+                    </div>
+
+                    {/* RED X BUTTON (Outside the label, high z-index) */}
+                    {item.image && (
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleRemoveImage(item.id);
+                        }}
+                        className="absolute -top-2 -right-2 bg-rose-500 text-white p-1.5 rounded-full border-2 border-white shadow-lg hover:scale-110 active:scale-90 transition-all z-20"
+                        title="Remove Image Only"
+                      >
+                        <X size={12} strokeWidth={3} />
+                      </button>
                     )}
                   </div>
+
                   <div>
-                    <p className="font-black text-zinc-900 uppercase italic">{item.name}</p>
-                    <p className="text-[10px] font-bold text-zinc-400 uppercase">{item.category}</p>
+                    <p className="font-black text-zinc-900 uppercase italic leading-tight">{item.name}</p>
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{item.category}</p>
+                    {item.image && (
+                      <button 
+                        onClick={() => handleRemoveImage(item.id)}
+                        className="text-[9px] text-rose-500 font-bold uppercase mt-1 hover:underline"
+                      >
+                        Remove Photo
+                      </button>
+                    )}
                   </div>
                 </td>
-                <td className="p-4 font-black text-lg">₹{item.price}</td>
+
+                <td className="p-4 font-black text-lg text-zinc-900">₹{item.price}</td>
+                
                 <td className="p-4">
                   <button 
                     onClick={() => toggleStatus(item)}
@@ -127,10 +192,11 @@ export default function MenuManager() {
                     {item.available ? "In Stock" : "Sold Out"}
                   </button>
                 </td>
+
                 <td className="p-4 text-right">
                   <button 
-                    onClick={async () => { if(confirm("Delete item?")) await deleteDoc(doc(db, "menu_items", item.id)) }}
-                    className="p-3 text-zinc-300 hover:text-rose-600 transition-colors"
+                    onClick={async () => { if(confirm("Delete item permanently?")) await deleteDoc(doc(db, "menu_items", item.id)) }}
+                    className="p-3 bg-zinc-50 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
                   >
                     <Trash2 className="h-5 w-5" />
                   </button>
