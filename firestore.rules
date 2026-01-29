@@ -3,18 +3,27 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Allow anyone to read the menu (Customers & Admin)
-    match /menu/{item} {
-      allow read: if true;
-      allow write: if true; 
+    // Correctly match the 'menu_items' collection used by the app
+    match /menu_items/{itemId} {
+      allow read, write: if true;
     }
 
-    // Allow anyone to read/write orders
-    match /orders/{order} {
+    // Live orders collection
+    match /orders/{orderId} {
+      allow read, write: if true;
+    }
+
+    // Archived orders collection
+    match /order_history/{historyId} {
+      allow read, write: if true;
+    }
+
+    // Internal counters for order numbers
+    match /daily_stats/{statId} {
       allow read, write: if true;
     }
     
-    // Default fallback for other collections
+    // Default fallback to keep things open during development
     match /{document=**} {
       allow read, write: if true;
     }
