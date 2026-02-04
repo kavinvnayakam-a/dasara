@@ -5,8 +5,8 @@ import { CartProvider } from '@/context/cart-context';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
-  title: 'Grillicious', // Updated to match your new branding
-  description: 'Sizzling flavors, delivered fast.',
+  title: 'Swiss Delight',
+  description: 'Exquisite pastries, coffee, and Swiss confections.',
 };
 
 export default function RootLayout({

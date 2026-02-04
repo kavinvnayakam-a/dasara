@@ -90,57 +90,53 @@ export default function MenuManager() {
 
   return (
     <div className="space-y-8 p-2">
-      {/* ADD ITEM FORM */}
-      <section className="bg-white border-4 border-zinc-900 p-6 rounded-[2rem] shadow-[8px_8px_0_0_#000]">
+      <section className="bg-white border-4 border-stone-800 p-6 rounded-[2rem] shadow-[8px_8px_0_0_#000]">
         <h2 className="text-xl font-black uppercase italic mb-6 flex items-center gap-2">
-          <Plus className="w-6 h-6" /> Add New Dish
+          <Plus className="w-6 h-6" /> Add New Menu Item
         </h2>
         <form onSubmit={handleAddItem} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-          <Input name="name" placeholder="Dish Name" required className="border-2 border-zinc-900 rounded-xl" />
-          <Input name="price" type="number" placeholder="Price (₹)" required className="border-2 border-zinc-900 rounded-xl" />
-          <Input name="category" placeholder="Category" required className="border-2 border-zinc-900 rounded-xl" />
+          <Input name="name" placeholder="Item Name" required className="border-2 border-stone-800 rounded-xl" />
+          <Input name="price" type="number" placeholder="Price (₹)" required className="border-2 border-stone-800 rounded-xl" />
+          <Input name="category" placeholder="Category" required className="border-2 border-stone-800 rounded-xl" />
           
           <div className="relative">
-            <label className="flex items-center justify-center w-full h-10 border-2 border-dashed border-zinc-300 rounded-xl cursor-pointer hover:bg-zinc-50 transition-all">
+            <label className="flex items-center justify-center w-full h-10 border-2 border-dashed border-stone-300 rounded-xl cursor-pointer hover:bg-stone-50 transition-all">
               <Camera className="w-4 h-4 mr-2" />
               <span className="text-[10px] font-bold uppercase">{file ? "Ready" : "Upload Photo"}</span>
               <input type="file" className="hidden" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
             </label>
           </div>
 
-          <Button disabled={isUploading} className="bg-zinc-900 text-white hover:bg-[#e76876] hover:text-zinc-900 font-black uppercase italic h-10 rounded-xl">
+          <Button disabled={isUploading} className="bg-stone-800 text-white hover:bg-amber-500 hover:text-stone-800 font-black uppercase italic h-10 rounded-xl">
             {isUploading ? <Loader2 className="animate-spin" /> : "Save to Cloud"}
           </Button>
         </form>
       </section>
 
-      {/* LIVE LIST */}
-      <div className="bg-white border-4 border-zinc-900 rounded-[2.5rem] overflow-hidden shadow-2xl">
+      <div className="bg-white border-4 border-stone-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
         <table className="w-full text-left">
-          <thead className="bg-zinc-900 text-white text-[10px] font-black uppercase tracking-[0.2em]">
+          <thead className="bg-stone-800 text-white text-[10px] font-black uppercase tracking-[0.2em]">
             <tr>
-              <th className="p-6">Dish & Image</th>
+              <th className="p-6">Item & Image</th>
               <th className="p-6">Price</th>
               <th className="p-6">Stock Status</th>
               <th className="p-6 text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y-2 divide-zinc-100">
+          <tbody className="divide-y-2 divide-stone-100">
             {items.map((item) => (
-              <tr key={item.id} className={`group transition-opacity ${!item.available ? "bg-zinc-50 opacity-60" : ""}`}>
+              <tr key={item.id} className={`group transition-opacity ${!item.available ? "bg-stone-50 opacity-60" : ""}`}>
                 <td className="p-4 flex items-center gap-4">
-                  {/* Image Container */}
                   <div className="relative w-20 h-20 shrink-0">
-                    <div className="w-full h-full rounded-2xl bg-zinc-100 border-2 border-zinc-900 overflow-hidden shadow-sm relative">
+                    <div className="w-full h-full rounded-2xl bg-stone-100 border-2 border-stone-800 overflow-hidden shadow-sm relative">
                       {item.image ? (
                         <img src={item.image} className="w-full h-full object-cover" alt={item.name} />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-zinc-300">
+                        <div className="w-full h-full flex items-center justify-center text-stone-300">
                           <ImageIcon size={24} />
                         </div>
                       )}
 
-                      {/* Upload/Swap Overlay (Clicking this triggers file input) */}
                       <label className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white opacity-0 hover:opacity-100 cursor-pointer transition-opacity z-10">
                         <RefreshCw size={20} className={isUploading ? "animate-spin" : ""} />
                         <span className="text-[8px] font-bold uppercase mt-1">Swap</span>
@@ -156,7 +152,6 @@ export default function MenuManager() {
                       </label>
                     </div>
 
-                    {/* RED X BUTTON (Outside the label, high z-index) */}
                     {item.image && (
                       <button 
                         onClick={(e) => {
@@ -172,8 +167,8 @@ export default function MenuManager() {
                   </div>
 
                   <div>
-                    <p className="font-black text-zinc-900 uppercase italic leading-tight">{item.name}</p>
-                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{item.category}</p>
+                    <p className="font-black text-stone-800 uppercase italic leading-tight">{item.name}</p>
+                    <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">{item.category}</p>
                     {item.image && (
                       <button 
                         onClick={() => handleRemoveImage(item.id)}
@@ -185,7 +180,7 @@ export default function MenuManager() {
                   </div>
                 </td>
 
-                <td className="p-4 font-black text-lg text-zinc-900">₹{item.price}</td>
+                <td className="p-4 font-black text-lg text-stone-800">₹{item.price}</td>
                 
                 <td className="p-4">
                   <button 
@@ -203,7 +198,7 @@ export default function MenuManager() {
                 <td className="p-4 text-right">
                   <button 
                     onClick={async () => { if(confirm("Delete item permanently?")) { if (firestore) await deleteDoc(doc(firestore, "menu_items", item.id)) } }}
-                    className="p-3 bg-zinc-50 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                    className="p-3 bg-stone-50 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
                   >
                     <Trash2 className="h-5 w-5" />
                   </button>

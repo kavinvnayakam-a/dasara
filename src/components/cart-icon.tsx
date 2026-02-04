@@ -5,10 +5,9 @@ import { useCart } from "@/hooks/use-cart";
 import { useEffect, useState } from "react";
 
 export function CartIcon({ onOpen }: { onOpen?: () => void }) {
-  const { totalItems, cartTotal } = useCart();
+  const { totalItems } = useCart();
   const [isAnimate, setIsAnimate] = useState(false);
 
-  // Animation trigger when items are added
   useEffect(() => {
     if (totalItems === 0) return;
     setIsAnimate(true);
@@ -21,46 +20,36 @@ export function CartIcon({ onOpen }: { onOpen?: () => void }) {
       onClick={onOpen}
       aria-label="Open cart"
       className={`
-        /* Positioning: Fixed to the right edge, middle of screen */
         fixed right-0 top-1/2 -translate-y-1/2 z-50
-        
-        /* Layout: Vertical column */
         flex flex-col items-center gap-2
-        
-        /* Styling: Zinc Black with Mustard Yellow details */
-        bg-zinc-900 text-white
+        bg-stone-800 text-white
         py-5 px-3
         rounded-l-[2rem]
-        border-y-2 border-l-2 border-[#e76876]
+        border-y-2 border-l-2 border-amber-500
         
-        /* Interaction */
         shadow-[-10px_0px_30px_rgba(0,0,0,0.2)]
         transition-all duration-300 active:scale-90
         ${isAnimate ? 'translate-x-0 scale-110' : 'translate-x-0 scale-100'}
-        hover:bg-zinc-800
+        hover:bg-stone-700
       `}
     >
-      {/* Item Count Badge - Mustard Yellow bubble */}
       <div className="
         flex h-6 w-6 items-center justify-center 
-        rounded-full bg-[#e76876] text-zinc-900 
+        rounded-full bg-amber-500 text-stone-800 
         text-[10px] font-black border-2 border-white
         shadow-sm
       ">
         {totalItems}
       </div>
 
-      {/* Bag Icon */}
-      <ShoppingBag className="h-6 w-6 text-[#e76876]" />
+      <ShoppingBag className="h-6 w-6 text-amber-500" />
 
-      {/* Vertical Branding Text */}
       <span className="[writing-mode:vertical-lr] rotate-180 text-[10px] font-black uppercase tracking-[0.2em] mt-1">
         Your Cart
       </span>
 
-      {/* Green indicator for money value */}
       {totalItems > 0 && (
-        <div className="mt-2 pt-2 border-t border-zinc-800 w-full flex justify-center">
+        <div className="mt-2 pt-2 border-t border-stone-700 w-full flex justify-center">
           <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
         </div>
       )}

@@ -14,19 +14,17 @@ export default function TableSelection() {
   };
 
   return (
-    // Background color matches the CustomerView exactly
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#e76876] p-4 selection:bg-zinc-900 selection:text-white">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-stone-100 p-4 selection:bg-stone-800 selection:text-white">
       
-      {/* Brutalist Card: White background with heavy black borders */}
-      <Card className="w-full max-w-2xl border-4 border-zinc-900 bg-white shadow-[12px_12px_0px_0px_#18181b] rounded-[2.5rem] overflow-hidden">
+      <Card className="w-full max-w-2xl border-4 border-stone-800 bg-white shadow-[12px_12px_0px_0px_#1c1917] rounded-[2.5rem] overflow-hidden">
         <CardHeader className="text-center pt-10 pb-6">
-          <div className="mx-auto bg-zinc-900 text-white w-fit px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-4">
+          <div className="mx-auto bg-stone-800 text-white w-fit px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-4">
             Welcome
           </div>
           <div className="bg-white rounded-full p-4 inline-block mx-auto">
-            <Image src="https://firebasestorage.googleapis.com/v0/b/grillicious-backend.firebasestorage.app/o/Grillicious-logo.webp?alt=media&token=efbfa1e4-5a67-417f-aff0-bef82099852a" alt="Grillicious" width={250} height={63} />
+            <Image src="https://firebasestorage.googleapis.com/v0/b/swissdelights-2a272.firebasestorage.app/o/Swiss_logo.webp?alt=media&token=70912942-ad4e-4840-9c22-99ab267c42c6" alt="Swiss Delight" width={250} height={63} />
           </div>
-          <CardDescription className="text-sm font-bold text-zinc-500 uppercase tracking-widest pt-3">
+          <CardDescription className="text-sm font-bold text-stone-500 uppercase tracking-widest pt-3">
             Select your table to start
           </CardDescription>
         </CardHeader>
@@ -39,11 +37,11 @@ export default function TableSelection() {
                 onClick={() => handleSelectTable(table)}
                 className="
                   h-20 text-3xl font-black 
-                  bg-white text-zinc-900 
-                  border-2 border-zinc-900 
+                  bg-white text-stone-800 
+                  border-2 border-stone-800 
                   rounded-2xl
-                  shadow-[4px_4px_0px_0px_#18181b] 
-                  hover:bg-[#e76876] hover:text-zinc-900 
+                  shadow-[4px_4px_0px_0px_#1c1917] 
+                  hover:bg-amber-500 hover:text-stone-800 
                   active:shadow-none active:translate-x-1 active:translate-y-1 
                   transition-all
                 "
@@ -54,8 +52,8 @@ export default function TableSelection() {
           </div>
           
           <div className="mt-10 text-center">
-            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
-              Sizzling flavors, delivered fast.
+            <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">
+              A taste of sweetness.
             </p>
           </div>
         </CardContent>

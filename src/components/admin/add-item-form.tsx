@@ -14,7 +14,7 @@ export default function AddItemForm() {
   const [formData, setFormData] = useState({
     name: "",
     price: "",
-    category: "Wraps",
+    category: "Pastries",
     description: "",
     image: ""
   });
@@ -34,7 +34,7 @@ export default function AddItemForm() {
         available: true
       });
       alert("Item added successfully!");
-      setFormData({ name: "", price: "", category: "Wraps", description: "", image: "" });
+      setFormData({ name: "", price: "", category: "Pastries", description: "", image: "" });
     } catch (err) {
       console.error("Error adding item:", err);
       alert("Error adding item. See console for details.");
@@ -42,17 +42,17 @@ export default function AddItemForm() {
   };
 
   return (
-    <Card className="border-4 border-zinc-900 shadow-[8px_8px_0px_0px_#18181b] rounded-[2rem]">
+    <Card className="border-4 border-stone-800 shadow-[8px_8px_0px_0px_#1c1917] rounded-[2rem]">
       <CardHeader>
-        <CardTitle className="text-xl font-black uppercase italic tracking-tighter">Add New Dish</CardTitle>
+        <CardTitle className="text-xl font-black uppercase italic tracking-tighter">Add New Item</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input 
-            placeholder="Dish Name (e.g. Classic Shawarma)" 
+            placeholder="Item Name (e.g. Chocolate Croissant)" 
             value={formData.name}
             onChange={(e) => setFormData({...formData, name: e.target.value})}
-            className="border-2 border-zinc-900 rounded-xl font-bold"
+            className="border-2 border-stone-800 rounded-xl font-bold"
           />
           <div className="grid grid-cols-2 gap-4">
             <Input 
@@ -60,20 +60,21 @@ export default function AddItemForm() {
               placeholder="Price (₹)" 
               value={formData.price}
               onChange={(e) => setFormData({...formData, price: e.target.value})}
-              className="border-2 border-zinc-900 rounded-xl font-bold"
+              className="border-2 border-stone-800 rounded-xl font-bold"
             />
             <select 
               value={formData.category}
               onChange={(e) => setFormData({...formData, category: e.target.value})}
-              className="border-2 border-zinc-900 rounded-xl font-bold px-3 bg-white"
+              className="border-2 border-stone-800 rounded-xl font-bold px-3 bg-white"
             >
-              <option>Wraps</option>
-              <option>Shawarma</option>
-              <option>Drinks</option>
-              {/* Add all your categories here */}
+              <option>Pastries</option>
+              <option>Cakes</option>
+              <option>Coffee</option>
+              <option>Sandwiches</option>
+              <option>Beverages</option>
             </select>
           </div>
-          <Button className="w-full bg-zinc-900 hover:bg-[#d4af37] hover:text-zinc-900 text-white font-black uppercase tracking-widest py-6 rounded-xl transition-all">
+          <Button className="w-full bg-stone-800 hover:bg-amber-500 hover:text-stone-800 text-white font-black uppercase tracking-widest py-6 rounded-xl transition-all">
             <PlusCircle className="mr-2" /> Add to Menu
           </Button>
         </form>
