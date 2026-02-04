@@ -1,4 +1,3 @@
-
 // Configuration using your NEXT_PUBLIC environment variables
 export const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,

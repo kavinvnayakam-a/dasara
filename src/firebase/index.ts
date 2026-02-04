@@ -15,7 +15,7 @@ export function initializeFirebase() {
   // Validate the config
   if (!firebaseConfig.apiKey) {
     // This error will be caught by the developer in their console.
-    throw new Error('Firebase configuration is invalid. Please check your .env.local file for NEXT_PUBLIC_FIREBASE_API_KEY.');
+    throw new Error('Firebase configuration is invalid. Ensure your Firebase project credentials (especially NEXT_PUBLIC_FIREBASE_API_KEY) are set correctly in your environment variables.');
   }
 
   const firebaseApp = initializeApp(firebaseConfig);
