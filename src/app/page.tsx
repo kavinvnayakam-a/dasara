@@ -17,13 +17,13 @@ export default async function Home({
   return (
     <Suspense 
       fallback={
-        <div className="h-screen w-full flex flex-col items-center justify-center bg-cream-100">
-          <div className="bg-white rounded-full p-4">
+        <div className="h-screen w-full flex flex-col items-center justify-center bg-background">
+          <div className="bg-white rounded-full p-2 shadow-lg">
             <Image 
               src="https://firebasestorage.googleapis.com/v0/b/swissdelights-2a272.firebasestorage.app/o/Swiss_logo.webp?alt=media&token=70912942-ad4e-4840-9c22-99ab267c42c6" 
               alt="Swiss Delight Logo" 
-              width={300} 
-              height={75} 
+              width={200} 
+              height={50} 
               className="animate-pulse" 
             />
           </div>

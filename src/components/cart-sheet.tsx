@@ -67,7 +67,7 @@ export function CartSheet({ isOpen, onOpenChange, tableId }: CartSheetProps) {
       toast({
         title: `Order #${orderNumber} Sent! 🚀`,
         description: "Waiting for the cafe's approval...",
-        className: "bg-stone-800 text-white border-b-4 border-amber-500",
+        className: "bg-foreground text-background border-b-4 border-accent",
       });
 
       clearCart();
@@ -90,11 +90,11 @@ export function CartSheet({ isOpen, onOpenChange, tableId }: CartSheetProps) {
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent 
         side="right" 
-        className="flex flex-col bg-stone-800 border-l-4 border-amber-500 text-white w-[85vw] sm:max-w-md p-0 overflow-hidden"
+        className="flex flex-col bg-foreground border-l-4 border-accent text-background w-[85vw] sm:max-w-md p-0 overflow-hidden"
       >
-        <SheetHeader className="p-6 border-b border-stone-700">
-          <SheetTitle className="text-xl font-black uppercase italic tracking-tighter text-white flex items-center gap-2">
-            <ShoppingBag className="text-amber-500 h-5 w-5" /> 
+        <SheetHeader className="p-6 border-b border-background/20">
+          <SheetTitle className="text-xl font-black uppercase italic tracking-tighter text-background flex items-center gap-2">
+            <ShoppingBag className="text-accent h-5 w-5" /> 
             {tableId ? `Table ${tableId}` : 'Takeaway Order'}
           </SheetTitle>
         </SheetHeader>
@@ -106,7 +106,7 @@ export function CartSheet({ isOpen, onOpenChange, tableId }: CartSheetProps) {
               <p className="text-center font-bold uppercase tracking-widest text-[10px]">Your cart is empty</p>
             </div>
           ) : (
-            <div className="divide-y divide-stone-700">
+            <div className="divide-y divide-background/20">
               {cartItems.map((item) => (
                 <div key={item.id} className="flex items-center gap-3 py-5 animate-in fade-in slide-in-from-right-4">
                   <div className="relative h-14 w-14 shrink-0">
@@ -115,11 +115,11 @@ export function CartSheet({ isOpen, onOpenChange, tableId }: CartSheetProps) {
                         src={item.image} 
                         alt={item.name} 
                         fill 
-                        className="rounded-lg object-cover border border-stone-600 shadow-lg"
+                        className="rounded-lg object-cover border border-background/20 shadow-lg"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center rounded-lg border border-stone-700 bg-stone-900">
-                        <ImageIcon className="h-6 w-6 text-stone-500" />
+                      <div className="flex h-full w-full items-center justify-center rounded-lg border border-background/20 bg-background/5">
+                        <ImageIcon className="h-6 w-6 text-muted" />
                       </div>
                     )}
                   </div>
@@ -128,21 +128,21 @@ export function CartSheet({ isOpen, onOpenChange, tableId }: CartSheetProps) {
                     <p className="font-black uppercase italic tracking-tight text-xs truncate leading-none mb-1">
                       {item.name}
                     </p>
-                    <p className="text-amber-500 font-bold text-xs">
+                    <p className="text-accent font-bold text-xs">
                       {formatCurrency(item.price)}
                     </p>
                     
                     <div className="flex items-center gap-2 mt-2">
-                      <div className="flex items-center bg-stone-900 rounded-lg border border-stone-700 p-0.5">
+                      <div className="flex items-center bg-background/10 rounded-lg border border-background/20 p-0.5">
                         <button 
-                          className="p-1 hover:text-amber-500 transition-colors"
+                          className="p-1 hover:text-accent transition-colors"
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
                         >
                           <Minus className="h-3 w-3"/>
                         </button>
                         <span className="w-6 text-center font-bold text-[10px] tabular-nums">{item.quantity}</span>
                         <button 
-                          className="p-1 hover:text-amber-500 transition-colors"
+                          className="p-1 hover:text-accent transition-colors"
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         >
                           <Plus className="h-3 w-3"/>
@@ -152,7 +152,7 @@ export function CartSheet({ isOpen, onOpenChange, tableId }: CartSheetProps) {
                   </div>
 
                   <button 
-                    className="p-2 text-stone-600 hover:text-rose-500 transition-colors"
+                    className="p-2 text-background/50 hover:text-rose-500 transition-colors"
                     onClick={() => removeFromCart(item.id)}
                   >
                     <Trash2 className="h-4 w-4"/>
@@ -164,11 +164,11 @@ export function CartSheet({ isOpen, onOpenChange, tableId }: CartSheetProps) {
         </div>
 
         {cartItems.length > 0 && (
-          <SheetFooter className="bg-stone-900/80 p-6 mt-auto border-t border-stone-700 backdrop-blur-sm">
+          <SheetFooter className="bg-background/5 p-6 mt-auto border-t border-background/20 backdrop-blur-sm">
             <div className="w-full space-y-4">
               <div className="flex justify-between items-end px-2">
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-stone-500">Total</span>
-                <div className="text-4xl font-black text-amber-500 tracking-tighter tabular-nums">
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-background/60">Total</span>
+                <div className="text-4xl font-black text-accent tracking-tighter tabular-nums">
                   {formatCurrency(cartTotal)}
                 </div>
               </div>
@@ -176,7 +176,7 @@ export function CartSheet({ isOpen, onOpenChange, tableId }: CartSheetProps) {
               <Button
                 onClick={handlePlaceOrder}
                 disabled={isPlacingOrder}
-                className="w-full h-16 text-base font-black uppercase italic tracking-widest bg-amber-500 text-stone-800 hover:bg-white rounded-2xl shadow-[0_8px_0_0_#b45309] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-3"
+                className="w-full h-16 text-base font-black uppercase italic tracking-widest bg-accent text-accent-foreground hover:bg-white rounded-2xl shadow-[0_8px_0_0_hsl(var(--accent-dark))] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-3"
               >
                 {isPlacingOrder ? (
                   <>
