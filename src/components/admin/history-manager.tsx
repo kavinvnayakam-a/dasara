@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react';
-import { db } from '@/firebase/config';
+import { useFirestore } from '@/firebase';
 import { collection, getDocs, query, where, orderBy, Timestamp } from 'firebase/firestore';
 import { Calendar as CalendarIcon, ShoppingBag, Clock, Banknote, Search, TrendingUp } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
@@ -11,12 +11,15 @@ export default function HistoryManager() {
   const [pastOrders, setPastOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'daily' | 'weekly'>('daily');
+  const firestore = useFirestore();
 
   useEffect(() => {
+    if (!firestore) return;
     fetchHistory();
-  }, [selectedDate, viewMode]);
+  }, [selectedDate, viewMode, firestore]);
 
   const fetchHistory = async () => {
+    if (!firestore) return;
     setIsLoading(true);
     try {
       const start = new Date(selectedDate);
@@ -38,7 +41,7 @@ export default function HistoryManager() {
       }
 
       const q = query(
-        collection(db, "order_history"),
+        collection(firestore, "order_history"),
         where("timestamp", ">=", Timestamp.fromDate(start)),
         where("timestamp", "<=", Timestamp.fromDate(end)),
         orderBy("timestamp", "desc")
