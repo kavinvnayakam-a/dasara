@@ -68,7 +68,7 @@ export const menuItems: MenuItem[] = [
   { id: '65', name: 'Espresso 45ml', category: 'Coffees', description: '', price: 79, image: '', available: true },
   { id: '66', name: 'Iced Caramel Coffee 300ml', category: 'Coffees', description: '', price: 199, image: '', available: true },
   { id: '67', name: 'Macchiato 50ml', category: 'Coffees', description: '', price: 119, image: '', available: true },
-  { id: '68', name: 'Spanish Latte 210ml', category: 'Coffees', description: '', price: 149, image: '', available: true },
+  { id: '68', name: 'Spanish Latte 210ml', category: 'Coffees', description: '', price: 149, available: true },
   { id: '69', name: 'Cortado 90ml', category: 'Coffees', description: '', price: 119, image: '', available: true },
   { id: '70', name: 'Ajwain Biscuits', category: 'Cookies', description: '', price: 159, image: '', available: true },
   { id: '71', name: 'Cashew & Oats Biscuits', category: 'Cookies', description: '', price: 229, image: '', available: true },

@@ -2,15 +2,35 @@
 
 import { useState, useEffect } from 'react';
 import { useFirestore, useStorage } from '@/firebase';
-import { collection, onSnapshot, updateDoc, doc, deleteDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { 
+  collection, 
+  onSnapshot, 
+  updateDoc, 
+  doc, 
+  deleteDoc, 
+  addDoc, 
+  serverTimestamp, 
+  setDoc 
+} from 'firebase/firestore';
 import { uploadMenuImage } from '@/lib/upload-image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Camera, Loader2, Image as ImageIcon, Plus, X, RefreshCw } from 'lucide-react';
+import { 
+  Trash2, 
+  Camera, 
+  Loader2, 
+  Image as ImageIcon, 
+  Plus, 
+  X, 
+  RefreshCw, 
+  Eye, 
+  EyeOff 
+} from 'lucide-react';
 import { MenuItem } from '@/lib/types';
 
 export default function MenuManager() {
   const [items, setItems] = useState<MenuItem[]>([]);
+  const [globalShowImages, setGlobalShowImages] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const firestore = useFirestore();
@@ -18,14 +38,43 @@ export default function MenuManager() {
 
   useEffect(() => {
     if (!firestore) return;
-    const unsubscribe = onSnapshot(collection(firestore, "menu_items"), (snapshot) => {
+
+    // Listen for Menu Items
+    const unsubItems = onSnapshot(collection(firestore, "menu_items"), (snapshot) => {
       setItems(snapshot.docs.map(doc => ({ 
         id: doc.id, 
         ...doc.data() 
       } as MenuItem)));
     });
-    return () => unsubscribe();
+
+    // Listen for Global Settings
+    const unsubSettings = onSnapshot(doc(firestore, "settings", "menu_config"), (snapshot) => {
+      if (snapshot.exists()) {
+        setGlobalShowImages(snapshot.data().globalShowImages);
+      }
+    });
+
+    return () => {
+      unsubItems();
+      unsubSettings();
+    };
   }, [firestore]);
+
+  // Master Global Toggle
+  const toggleGlobalImages = async () => {
+    if (!firestore) return;
+    const settingsRef = doc(firestore, "settings", "menu_config");
+    await setDoc(settingsRef, { globalShowImages: !globalShowImages }, { merge: true });
+  };
+
+  // Individual Image Toggle
+  const toggleImageVisibility = async (item: MenuItem) => {
+    if (!firestore) return;
+    const itemRef = doc(firestore, "menu_items", item.id);
+    await updateDoc(itemRef, { 
+      showImage: item.showImage === undefined ? false : !item.showImage 
+    });
+  };
 
   const toggleStatus = async (item: MenuItem) => {
     if (!firestore) return;
@@ -38,7 +87,7 @@ export default function MenuManager() {
     if (!confirm("Remove this image? The item will stay on the menu.")) return;
     try {
       const itemRef = doc(firestore, "menu_items", itemId);
-      await updateDoc(itemRef, { image: "" });
+      await updateDoc(itemRef, { image: "", showImage: false });
     } catch (err) {
       console.error("Error removing image:", err);
     }
@@ -51,7 +100,10 @@ export default function MenuManager() {
       const imageUrl = await uploadMenuImage(storage, newFile);
       if (imageUrl) {
         const itemRef = doc(firestore, "menu_items", itemId);
-        await updateDoc(itemRef, { image: imageUrl });
+        await updateDoc(itemRef, { 
+          image: imageUrl,
+          showImage: true 
+        });
       }
     } catch (err) {
       console.error("Error updating image:", err);
@@ -76,6 +128,7 @@ export default function MenuManager() {
         category: formData.get("category"),
         description: "",
         image: imageUrl,
+        showImage: imageUrl ? true : false,
         available: true,
         timestamp: serverTimestamp()
       });
@@ -90,6 +143,25 @@ export default function MenuManager() {
 
   return (
     <div className="space-y-8 p-2">
+      {/* MASTER IMAGE CONTROL PANEL */}
+      <section className="bg-amber-50 border-4 border-stone-800 p-6 rounded-[2rem] shadow-[8px_8px_0_0_#000] flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-black uppercase italic">Master Image Display</h2>
+          <p className="text-xs font-bold text-stone-500 uppercase">Turn off all images on customer website instantly</p>
+        </div>
+        <Button 
+          onClick={toggleGlobalImages}
+          className={`h-12 px-8 rounded-2xl font-black uppercase italic border-2 transition-all ${
+            globalShowImages 
+            ? "bg-emerald-500 text-white border-stone-800 shadow-[4px_4px_0_0_#000] hover:bg-emerald-600 active:translate-y-1" 
+            : "bg-stone-200 text-stone-500 border-stone-300"
+          }`}
+        >
+          {globalShowImages ? "All Images: Visible" : "All Images: Hidden"}
+        </Button>
+      </section>
+
+      {/* ADD ITEM SECTION */}
       <section className="bg-white border-4 border-stone-800 p-6 rounded-[2rem] shadow-[8px_8px_0_0_#000]">
         <h2 className="text-xl font-black uppercase italic mb-6 flex items-center gap-2">
           <Plus className="w-6 h-6" /> Add New Menu Item
@@ -113,11 +185,13 @@ export default function MenuManager() {
         </form>
       </section>
 
+      {/* MENU TABLE */}
       <div className="bg-white border-4 border-stone-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
         <table className="w-full text-left">
           <thead className="bg-stone-800 text-white text-[10px] font-black uppercase tracking-[0.2em]">
             <tr>
               <th className="p-6">Item & Image</th>
+              <th className="p-6">Visibility</th>
               <th className="p-6">Price</th>
               <th className="p-6">Stock Status</th>
               <th className="p-6 text-right">Action</th>
@@ -127,7 +201,7 @@ export default function MenuManager() {
             {items.map((item) => (
               <tr key={item.id} className={`group transition-opacity ${!item.available ? "bg-stone-50 opacity-60" : ""}`}>
                 <td className="p-4 flex items-center gap-4">
-                  <div className="relative w-20 h-20 shrink-0">
+                  <div className={`relative w-20 h-20 shrink-0 transition-all ${item.showImage === false ? "grayscale opacity-40" : ""}`}>
                     <div className="w-full h-full rounded-2xl bg-stone-100 border-2 border-stone-800 overflow-hidden shadow-sm relative">
                       {item.image ? (
                         <img src={item.image} className="w-full h-full object-cover" alt={item.name} />
@@ -154,12 +228,8 @@ export default function MenuManager() {
 
                     {item.image && (
                       <button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleRemoveImage(item.id);
-                        }}
+                        onClick={(e) => { e.preventDefault(); handleRemoveImage(item.id); }}
                         className="absolute -top-2 -right-2 bg-rose-500 text-white p-1.5 rounded-full border-2 border-white shadow-lg hover:scale-110 active:scale-90 transition-all z-20"
-                        title="Remove Image Only"
                       >
                         <X size={12} strokeWidth={3} />
                       </button>
@@ -169,15 +239,25 @@ export default function MenuManager() {
                   <div>
                     <p className="font-black text-stone-800 uppercase italic leading-tight">{item.name}</p>
                     <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">{item.category}</p>
-                    {item.image && (
-                      <button 
-                        onClick={() => handleRemoveImage(item.id)}
-                        className="text-[9px] text-rose-500 font-bold uppercase mt-1 hover:underline"
-                      >
-                        Remove Photo
-                      </button>
-                    )}
                   </div>
+                </td>
+
+                {/* VISIBILITY TOGGLE CELL */}
+                <td className="p-4">
+                  <button
+                    disabled={!item.image}
+                    onClick={() => toggleImageVisibility(item)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all font-black text-[9px] uppercase ${
+                      !item.image 
+                        ? "border-stone-100 text-stone-200 cursor-not-allowed"
+                        : item.showImage !== false 
+                        ? "border-amber-500 bg-amber-50 text-amber-600 shadow-[2px_2px_0_0_#d97706]" 
+                        : "border-stone-300 bg-stone-100 text-stone-500"
+                    }`}
+                  >
+                    {item.showImage !== false ? <Eye size={14} /> : <EyeOff size={14} />}
+                    {item.showImage !== false ? "Shown" : "Hidden"}
+                  </button>
                 </td>
 
                 <td className="p-4 font-black text-lg text-stone-800">₹{item.price}</td>
