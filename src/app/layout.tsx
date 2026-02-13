@@ -7,6 +7,7 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 export const metadata: Metadata = {
   title: 'Dasara Fine Dine',
   description: 'Exquisite flavors and premium dining experience.',
+  // Strictly prevent indexing and crawling across all search engines
   robots: {
     index: false,
     follow: false,
@@ -14,6 +15,10 @@ export const metadata: Metadata = {
     googleBot: {
       index: false,
       follow: false,
+      noimageindex: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
     },
   },
 };
@@ -38,6 +43,8 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap" rel="stylesheet" />
+        {/* Additional meta tag for absolute certainty */}
+        <meta name="robots" content="noindex, nofollow, noarchive" />
       </head>
       <body className="font-body antialiased font-bold">
         <FirebaseClientProvider config={firebaseConfig}>
