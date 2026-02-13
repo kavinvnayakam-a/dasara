@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardDescription } from "@/components/ui/card";
 import Image from 'next/image';
 
+const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/swissdelights-2a272.firebasestorage.app/o/Dasara%20Fine%20Dine.jpg?alt=media&token=b7591bfd-13ee-4d28-b8c0-278f3662c5b7";
+
 export default function TableSelection() {
   const router = useRouter();
   const tables = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -14,46 +16,47 @@ export default function TableSelection() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-orange-50 p-4 selection:bg-primary selection:text-primary-foreground">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-orange-50/30 p-4 selection:bg-primary selection:text-primary-foreground">
       
-      <Card className="w-full max-w-2xl border-4 border-foreground bg-card shadow-[12px_12px_0px_0px_hsl(var(--foreground))] rounded-[2.5rem] overflow-hidden">
-        <CardHeader className="text-center pt-10 pb-6">
-          <div className="mx-auto bg-foreground text-background w-fit px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-4">
-            Welcome to Dasara
+      <Card className="w-full max-w-2xl border-4 border-slate-900 bg-white shadow-[16px_16px_0px_0px_#1e293b] rounded-[3rem] overflow-hidden">
+        <CardHeader className="text-center pt-12 pb-8">
+          <div className="mx-auto bg-primary text-white w-fit px-8 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.4em] mb-6 shadow-lg shadow-orange-900/20">
+            NAMASKARAM
           </div>
-          <div className="bg-white rounded-full p-2 inline-block mx-auto">
-            <Image src="https://firebasestorage.googleapis.com/v0/b/swissdelights-2a272.firebasestorage.app/o/Dasara%20Fine%20Dine.jpg?alt=media&token=b7591bfd-13ee-4d28-b8c0-278f3662c5b7" alt="Dasara Fine Dine" width={150} height={150} className="rounded-full" />
+          <div className="relative inline-block mx-auto p-1 bg-white rounded-full shadow-2xl ring-4 ring-primary/10 mb-6">
+            <Image src={LOGO_URL} alt="Dasara Fine Dine" width={160} height={160} className="rounded-full" priority />
           </div>
-          <CardDescription className="text-sm font-bold text-muted-foreground uppercase tracking-widest pt-3">
-            Select your table to begin dining
-          </CardDescription>
+          <div className="space-y-2">
+            <h2 className="text-3xl font-serif italic text-slate-900">Welcome to Dasara</h2>
+            <CardDescription className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pt-1">
+              Select your fine dining table to begin
+            </CardDescription>
+          </div>
         </CardHeader>
         
-        <CardContent className="p-8">
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+        <CardContent className="p-10">
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-6">
             {tables.map((table) => (
-              <Button
+              <button
                 key={table}
                 onClick={() => handleSelectTable(table)}
                 className="
-                  h-20 text-3xl font-black 
-                  bg-card text-foreground
-                  border-2 border-foreground
-                  rounded-2xl
-                  shadow-[4px_4px_0px_0px_hsl(var(--foreground))]
-                  hover:bg-primary hover:text-white
-                  active:shadow-none active:translate-x-1 active:translate-y-1 
-                  transition-all
+                  dasara-banner h-20 text-3xl font-black italic
+                  bg-orange-50 text-slate-800
+                  transition-all duration-300
+                  hover:bg-primary hover:text-white hover:shadow-xl hover:translate-y-[-4px]
+                  active:translate-y-0
                 "
               >
                 {table}
-              </Button>
+              </button>
             ))}
           </div>
           
-          <div className="mt-10 text-center">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-              A feast of tradition and taste.
+          <div className="mt-12 text-center flex flex-col items-center gap-4">
+            <div className="h-px w-16 bg-orange-100" />
+            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-300">
+              A LEGACY OF TRADITION & TASTE
             </p>
           </div>
         </CardContent>

@@ -19,9 +19,12 @@ import {
   ChevronRight, 
   Search, 
   ArrowUp, 
-  X 
+  X,
+  Heart
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
+
+const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/swissdelights-2a272.firebasestorage.app/o/Dasara%20Fine%20Dine.jpg?alt=media&token=b7591bfd-13ee-4d28-b8c0-278f3662c5b7";
 
 export default function CustomerView({ tableId }: { tableId: string | null, mode: 'dine-in' | 'takeaway' }) {
   const router = useRouter();
@@ -94,8 +97,8 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
     return (
       <div className="min-h-screen bg-orange-50 flex items-center justify-center">
         <div className="relative flex flex-col items-center">
-          <div className="w-16 h-16 border-4 border-orange-500/20 border-t-orange-600 rounded-full animate-spin" />
-          <p className="mt-4 text-sm font-medium text-orange-400 animate-pulse tracking-widest uppercase">Dasara Fine Dine</p>
+          <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+          <p className="mt-4 text-sm font-black text-primary animate-pulse tracking-widest uppercase">Dasara Fine Dine</p>
         </div>
       </div>
     );
@@ -103,39 +106,42 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
 
   if (!showMenu && !tableId) {
     return (
-      <div className="min-h-screen bg-orange-50 flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-orange-50/50 flex flex-col items-center justify-center p-6">
         <div className="max-w-sm w-full space-y-12 text-center">
           <div className="space-y-6">
-            <div className="inline-block p-2 bg-white rounded-full shadow-sm ring-1 ring-black/5">
-              <Image src="https://firebasestorage.googleapis.com/v0/b/swissdelights-2a272.firebasestorage.app/o/Dasara%20Fine%20Dine.jpg?alt=media&token=b7591bfd-13ee-4d28-b8c0-278f3662c5b7" alt="Logo" width={150} height={150} className="rounded-full" priority />
+            <div className="relative inline-block p-1 bg-white rounded-full shadow-2xl ring-4 ring-primary/10">
+              <Image src={LOGO_URL} alt="Dasara Logo" width={140} height={140} className="rounded-full" priority />
             </div>
-            <h2 className="text-3xl font-serif italic text-slate-800">Flavors of tradition, <br/>served with love.</h2>
+            <div className="space-y-2">
+              <h2 className="text-4xl font-serif italic text-slate-900 leading-tight">Authentic Flavors,</h2>
+              <p className="text-primary font-black uppercase tracking-[0.3em] text-xs">Exquisite Fine Dine</p>
+            </div>
           </div>
 
-          <div className="bg-white p-8 rounded-[3rem] shadow-xl shadow-orange-900/5 space-y-6 text-left border border-white">
+          <div className="bg-white/70 backdrop-blur-xl p-8 rounded-[3rem] shadow-2xl shadow-orange-900/5 space-y-6 text-left border border-white">
             <div className="flex items-center gap-4 group">
-              <div className="bg-orange-50 p-3 rounded-2xl text-orange-600 transition-colors">
+              <div className="bg-primary/10 p-3 rounded-2xl text-primary transition-colors">
                 <MapPin size={20}/>
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase text-slate-400 tracking-tight">Location</p>
-                <p className="font-semibold text-slate-700">L. B. Nagar, Hyderabad</p>
+                <p className="text-[10px] font-black uppercase text-slate-400 tracking-tight">Location</p>
+                <p className="font-bold text-slate-800">L. B. Nagar, Hyderabad</p>
               </div>
             </div>
             <div className="flex items-center gap-4 group">
-              <div className="bg-amber-50 p-3 rounded-2xl text-amber-600 transition-colors">
+              <div className="bg-orange-100 p-3 rounded-2xl text-orange-600 transition-colors">
                 <ClockIcon size={20}/>
               </div>
               <div>
-                <p className="text-[10px] font-bold uppercase text-slate-400 tracking-tight">Open Daily</p>
-                <p className="font-semibold text-slate-700">24hrs Dining</p>
+                <p className="text-[10px] font-black uppercase text-slate-400 tracking-tight">Open Daily</p>
+                <p className="font-bold text-slate-800">24 Hours Dining</p>
               </div>
             </div>
           </div>
 
           <button 
             onClick={() => setShowMenu(true)}
-            className="w-full bg-slate-900 text-white py-6 rounded-full font-bold shadow-2xl shadow-orange-200 flex items-center justify-center gap-3 hover:bg-orange-600 transition-all transform active:scale-95"
+            className="w-full bg-slate-900 text-white py-6 rounded-full font-black uppercase tracking-widest shadow-2xl shadow-orange-200 flex items-center justify-center gap-3 hover:bg-primary transition-all transform active:scale-95"
           >
             Explore Menu
             <ChevronRight size={20} />
@@ -149,16 +155,16 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
     <div className="min-h-screen bg-background">
       <Header tableId={tableId || "Takeaway"} onCartClick={() => setCartOpen(true)} timeLeft={timeLeft} />
       
-      <div className="sticky top-16 z-30 bg-white/90 backdrop-blur-md border-b border-orange-100 px-4 py-4 space-y-4">
+      <div className="sticky top-16 z-30 bg-white/90 backdrop-blur-md border-b border-orange-100 px-4 py-4 space-y-4 shadow-sm">
         <div className="max-w-5xl mx-auto flex flex-col gap-4">
           <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-orange-500 transition-colors" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
             <input 
               type="text"
               placeholder="Search for delicacies..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-12 pl-12 pr-12 bg-orange-50 border-none rounded-2xl text-sm font-medium focus:ring-2 ring-orange-500/20 transition-all outline-none"
+              className="w-full h-12 pl-12 pr-12 bg-orange-50 border-none rounded-2xl text-sm font-bold focus:ring-2 ring-primary/20 transition-all outline-none"
             />
             {searchQuery && (
               <button 
@@ -171,7 +177,7 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
           </div>
 
           {!searchQuery && (
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 items-center">
               {categorizedMenu.map(({ category }) => (
                 <button
                   key={category}
@@ -179,14 +185,25 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
                     document.getElementById(category)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     setActiveCategory(category);
                   }}
-                  className={cn(
-                    "px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all",
-                    activeCategory === category 
-                      ? "bg-slate-900 text-white shadow-lg" 
-                      : "bg-orange-100 text-orange-600 hover:bg-orange-200"
-                  )}
+                  className="relative group shrink-0"
                 >
-                  {category}
+                  {/* Decorative Lines */}
+                  <div className={cn(
+                    "absolute top-1/2 -translate-y-1/2 w-full h-px transition-all duration-300",
+                    activeCategory === category ? "bg-primary/20 scale-x-110" : "bg-transparent scale-x-0"
+                  )} />
+                  
+                  {/* Banner Shape */}
+                  <div className={cn(
+                    "dasara-banner relative z-10 px-8 py-3 transition-all duration-300",
+                    activeCategory === category 
+                      ? "bg-primary text-white shadow-[0_8px_16px_-4px_rgba(234,88,12,0.3)]" 
+                      : "bg-orange-100 text-primary hover:bg-orange-200"
+                  )}>
+                    <span className="font-serif italic text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap">
+                      {category}
+                    </span>
+                  </div>
                 </button>
               ))}
             </div>
@@ -195,43 +212,61 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
       </div>
 
       <main className="max-w-5xl mx-auto px-4 py-12 pb-40">
-        <header className="mb-12 text-center md:text-left">
-          <h1 className="text-4xl font-serif italic text-slate-900">
-            {searchQuery ? `Results for "${searchQuery}"` : "Dasara Fine Dine"}
-          </h1>
-          <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
-            <span className="w-8 h-[2px] bg-primary" />
-            <p className="text-slate-400 font-medium text-xs uppercase tracking-widest">
-              {tableId ? `Table ${tableId}` : 'Take-Away Experience'}
-            </p>
+        <header className="mb-12 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h1 className="text-5xl font-serif italic text-slate-900 tracking-tight">
+              {searchQuery ? `Searching "${searchQuery}"` : "Dasara Menu"}
+            </h1>
+            <div className="flex items-center justify-center md:justify-start gap-3 mt-4">
+              <span className="w-12 h-[2px] bg-primary" />
+              <p className="text-primary font-black text-[10px] uppercase tracking-[0.3em]">
+                {tableId ? `Fine Dining Table ${tableId}` : 'Take-Away Experience'}
+              </p>
+            </div>
+          </div>
+          <div className="hidden md:flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-orange-100 shadow-sm">
+             <Heart className="text-primary fill-primary animate-pulse" size={14} />
+             <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Authentic Telangana Flavors</span>
           </div>
         </header>
 
-        <div className="space-y-16">
+        <div className="space-y-20">
           {categorizedMenu.length > 0 ? (
             categorizedMenu.map(({ category, items }) => (
               <section key={category} id={category} className="scroll-mt-48">
-                <h3 className="text-xl font-bold text-slate-800 mb-8 flex items-center gap-4">
-                  {category}
-                  <span className="h-px flex-1 bg-orange-100" />
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="flex items-center gap-6 mb-10">
+                  <div className="dasara-banner bg-slate-900 px-10 py-4 text-white">
+                    <h3 className="text-sm font-serif italic font-black uppercase tracking-[0.2em]">
+                      {category}
+                    </h3>
+                  </div>
+                  <div className="h-px flex-1 bg-gradient-to-r from-orange-200 to-transparent" />
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
                   {items.map((item) => (
-                    <div key={item.id}>
-                      <MenuItemCard item={item} onAddToCart={addToCart} />
-                    </div>
+                    <MenuItemCard key={item.id} item={item} onAddToCart={addToCart} />
                   ))}
                 </div>
               </section>
             ))
           ) : (
-            <div className="py-20 text-center space-y-4">
-              <div className="inline-block p-6 bg-orange-50 rounded-full">
-                <Search size={40} className="text-orange-200" />
+            <div className="py-20 text-center space-y-6">
+              <div className="relative inline-block">
+                <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full" />
+                <div className="relative p-10 bg-white rounded-full border border-orange-100 shadow-xl">
+                  <Search size={48} className="text-orange-200" />
+                </div>
               </div>
-              <p className="text-slate-500 font-medium italic">No items found matching "{searchQuery}"</p>
-              <button onClick={() => setSearchQuery("")} className="text-primary text-sm font-bold uppercase tracking-widest hover:underline">
-                View Full Menu
+              <div className="space-y-2">
+                <p className="text-slate-800 font-bold text-lg">No delicacies found</p>
+                <p className="text-slate-400 text-xs font-medium uppercase tracking-widest italic">Try another search or browse full menu</p>
+              </div>
+              <button 
+                onClick={() => setSearchQuery("")} 
+                className="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-primary transition-all"
+              >
+                Reset Search <ChevronRight size={14} />
               </button>
             </div>
           )}
@@ -241,29 +276,40 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
       <button
         onClick={scrollToTop}
         className={cn(
-          "fixed bottom-28 right-6 z-[60] p-4 bg-white border border-orange-100 shadow-2xl rounded-full text-slate-900 transition-all duration-500",
+          "fixed bottom-28 right-6 z-[60] p-4 bg-white border border-orange-100 shadow-2xl rounded-full text-primary transition-all duration-500 hover:scale-110 active:scale-95",
           showBackToTop ? "translate-y-0 opacity-100 scale-100" : "translate-y-20 opacity-0 scale-50"
         )}
       >
-        <ArrowUp size={24} strokeWidth={2.5} />
+        <ArrowUp size={24} strokeWidth={3} />
       </button>
 
       <footer className="bg-white border-t border-orange-100 py-16 px-6">
-        <div className="max-w-5xl mx-auto flex flex-col items-center gap-8">
-          <Image 
-            src="https://firebasestorage.googleapis.com/v0/b/swissdelights-2a272.firebasestorage.app/o/Dasara%20Fine%20Dine.jpg?alt=media&token=b7591bfd-13ee-4d28-b8c0-278f3662c5b7" 
-            alt="Dasara Logo" 
-            width={80} 
-            height={80} 
-            className="rounded-full opacity-80" 
-          />
-          <Link href="https://www.getpik.in/" target="_blank" className="flex flex-col items-center gap-3">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Powered By</span>
-            <div className="px-6 py-2 bg-orange-50 rounded-full border border-orange-100 flex items-center gap-2">
-              <span className="text-slate-900 font-bold text-sm">GetPik</span>
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            </div>
-          </Link>
+        <div className="max-w-5xl mx-auto flex flex-col items-center gap-10">
+          <div className="relative p-1 bg-white rounded-full shadow-2xl ring-4 ring-primary/5">
+            <Image 
+              src={LOGO_URL} 
+              alt="Dasara Logo" 
+              width={100} 
+              height={100} 
+              className="rounded-full" 
+            />
+          </div>
+          
+          <div className="flex flex-col items-center gap-4">
+             <div className="flex items-center gap-3">
+               <span className="h-px w-8 bg-orange-200" />
+               <p className="font-serif italic text-slate-400">Authentic fine dine experience.</p>
+               <span className="h-px w-8 bg-orange-200" />
+             </div>
+             
+             <Link href="https://www.getpik.in/" target="_blank" className="flex flex-col items-center gap-3 group mt-4">
+              <span className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-300 group-hover:text-primary transition-colors">Digital Dining By</span>
+              <div className="px-8 py-3 bg-slate-50 rounded-2xl border border-orange-100 flex items-center gap-3 transition-all group-hover:border-primary group-hover:bg-white shadow-sm">
+                <span className="text-slate-900 font-black text-sm tracking-tighter">GetPik</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
+            </Link>
+          </div>
         </div>
       </footer>
 
