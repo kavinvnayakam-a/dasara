@@ -90,7 +90,7 @@ export default function OrderStatusPage() {
     return () => clearInterval(interval);
   }, [isTimerRunning, id, router]);
 
-  // 4. Pastry Rain Game Logic (Optimized Speed & Brightness)
+  // 4. Spice Catch Game Logic (Telangana Fine Dine Theme)
   useEffect(() => {
     if (!gameActive || !canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -99,8 +99,8 @@ export default function OrderStatusPage() {
     canvas.height = window.innerHeight;
 
     let basketX = canvas.width / 2;
-    const pastries: any[] = [];
-    const emojis = ["🥐", "🧁", "🥨", "🍩", "🍪"];
+    const items: any[] = [];
+    const emojis = ["🍗", "🥘", "🌶️", "🍛", "🍲"];
     let frame = 0;
     let animationId: number;
 
@@ -111,28 +111,27 @@ export default function OrderStatusPage() {
       ctx.shadowColor = "rgba(0,0,0,0.1)";
       ctx.font = "60px serif";
       ctx.textAlign = "center";
-      ctx.fillText("🧺", basketX, canvas.height - 100);
+      ctx.fillText("🥘", basketX, canvas.height - 100);
 
-      // Slower spawn rate (every 60 frames)
       if (frame % 60 === 0) {
-        pastries.push({ 
+        items.push({ 
           x: Math.random() * (canvas.width - 60) + 30, 
           y: -50, 
           emoji: emojis[Math.floor(Math.random() * emojis.length)],
-          speed: 2 + Math.random() * 2 // Reduced falling speed
+          speed: 2 + Math.random() * 2 
         });
       }
 
-      pastries.forEach((p, i) => {
+      items.forEach((p, i) => {
         p.y += p.speed;
         ctx.shadowBlur = 10;
-        ctx.shadowColor = "rgba(183, 53, 56, 0.3)";
+        ctx.shadowColor = "rgba(234, 88, 12, 0.3)";
         ctx.font = "50px serif";
         ctx.fillText(p.emoji, p.x, p.y);
 
         if (p.y > canvas.height - 140 && p.y < canvas.height - 70 && Math.abs(p.x - basketX) < 60) {
           setScore(s => s + 1);
-          pastries.splice(i, 1);
+          items.splice(i, 1);
         }
         if (p.y > canvas.height) {
           setGameActive(false);
@@ -186,7 +185,6 @@ export default function OrderStatusPage() {
     setHelpLoading(false);
   };
 
-  // Filter: Matches search query AND must be available (in stock)
   const groupedMenu = fullMenu.reduce((acc: Record<string, any[]>, item) => {
     const cat = item.category || 'General';
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -200,40 +198,40 @@ export default function OrderStatusPage() {
   }, {});
 
   return (
-    <div className="fixed inset-0 bg-[#FDFDFD] font-sans overflow-hidden select-none">
+    <div className="fixed inset-0 bg-orange-50/30 font-sans overflow-hidden select-none">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-10 opacity-100" />
 
       {/* Timer Overlay */}
       {isTimerRunning && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[60] bg-slate-900 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-2xl scale-90">
-          <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Closing in:</span>
-          <span className="font-mono font-bold text-[#facc15]">
+          <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Session ends in:</span>
+          <span className="font-mono font-bold text-primary">
             {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
           </span>
         </div>
       )}
 
-      {/* Header / Status Bar - Positioned Higher (top-8) */}
+      {/* Header / Status Bar */}
       <div className={cn(
         "absolute top-8 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50 transition-all duration-700",
         gameActive ? "-translate-y-40 opacity-0" : "translate-y-0 opacity-100"
       )}>
-        <div className="bg-white/80 backdrop-blur-xl border border-white p-6 rounded-[2.5rem] shadow-xl shadow-black/5 flex flex-col gap-4">
+        <div className="bg-white/80 backdrop-blur-xl border border-orange-100 p-6 rounded-[2.5rem] shadow-xl shadow-orange-900/5 flex flex-col gap-4">
           <div className="flex justify-between items-center px-1">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#b73538]">Order #{orderData?.orderNumber}</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-primary">Order #{orderData?.orderNumber}</span>
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tbl {orderData?.tableId}</span>
           </div>
-          <div className="relative h-4 w-full bg-slate-100 rounded-full overflow-hidden">
+          <div className="relative h-4 w-full bg-orange-100/50 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-[#b73538] transition-all duration-1000"
+              className="h-full bg-primary transition-all duration-1000"
               style={{ width: status === 'Pending' ? '30%' : status === 'Served' ? '100%' : '65%' }}
             />
           </div>
           <div className="flex items-center justify-center gap-2">
             <span className="text-xs font-bold text-slate-800 uppercase">
-              {status === 'Pending' ? 'Wait Approval' : status === 'Served' ? 'Order Served!' : 'Baking Delights'}
+              {status === 'Pending' ? 'Wait Approval' : status === 'Served' ? 'Meal Served!' : 'Crafting Flavors'}
             </span>
-            <Heart size={14} className="text-[#b73538] fill-[#b73538] animate-pulse" />
+            <Heart size={14} className="text-primary fill-primary animate-pulse" />
           </div>
         </div>
       </div>
@@ -241,28 +239,28 @@ export default function OrderStatusPage() {
       {/* Action Buttons */}
       {!gameActive && (
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50 flex gap-4">
-          <button onClick={() => setShowOrderMore(true)} className="flex-1 bg-white h-16 rounded-2xl flex items-center justify-center gap-2 shadow-xl border border-slate-100">
-            <PlusCircle size={20} className="text-[#b73538]" />
+          <button onClick={() => setShowOrderMore(true)} className="flex-1 bg-white h-16 rounded-2xl flex items-center justify-center gap-2 shadow-xl border border-orange-50">
+            <PlusCircle size={20} className="text-primary" />
             <span className="text-[11px] font-black uppercase tracking-widest">Order More</span>
           </button>
           <button onClick={requestHelp} className={cn(
             "flex-1 h-16 rounded-2xl flex items-center justify-center gap-2 shadow-xl transition-all",
-            orderData?.helpRequested ? 'bg-emerald-500 text-white' : 'bg-[#b73538] text-white'
+            orderData?.helpRequested ? 'bg-emerald-500 text-white' : 'bg-primary text-white'
           )}>
             <BellRing size={20} />
-            <span className="text-[11px] font-black uppercase tracking-widest">{orderData?.helpRequested ? 'Coming!' : 'Help'}</span>
+            <span className="text-[11px] font-black uppercase tracking-widest">{orderData?.helpRequested ? 'Coming!' : 'Call Staff'}</span>
           </button>
         </div>
       )}
 
       {/* Game Overlay */}
       {!gameActive && !showOrderMore && (
-        <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-[#FDFDFD]/40 backdrop-blur-sm p-8">
-          <div className="bg-white p-10 rounded-[4rem] shadow-2xl text-center space-y-8 max-w-sm border border-slate-50">
-            <div className="text-7xl">{isGameOver ? "🥣" : "🥐"}</div>
+        <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-orange-50/40 backdrop-blur-sm p-8">
+          <div className="bg-white p-10 rounded-[4rem] shadow-2xl text-center space-y-8 max-w-sm border border-orange-100">
+            <div className="text-7xl">{isGameOver ? "🍛" : "🥘"}</div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-serif italic text-slate-800">Pastry Catch</h2>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Catch them in the basket!</p>
+              <h2 className="text-2xl font-serif italic text-slate-800">Spice Catch</h2>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Catch the Dasara delicacies!</p>
             </div>
             <button 
               onClick={() => { setScore(0); setGameActive(true); setIsGameOver(false); }} 
@@ -277,24 +275,24 @@ export default function OrderStatusPage() {
       {/* Score Display */}
       {gameActive && (
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none">
-          <span className="text-8xl font-serif italic text-[#b73538] drop-shadow-lg">{score}</span>
+          <span className="text-8xl font-serif italic text-primary drop-shadow-lg">{score}</span>
         </div>
       )}
 
-      {/* Order More Popup - Only Showing In-Stock Items */}
+      {/* Order More Popup */}
       {showOrderMore && (
         <div className="absolute inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-end">
-          <div className="w-full bg-[#FDFDFD] rounded-t-[3rem] p-8 border-t border-slate-100 max-h-[85vh] flex flex-col">
+          <div className="w-full bg-white rounded-t-[3rem] p-8 border-t border-orange-100 max-h-[85vh] flex flex-col">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-serif italic text-slate-800">Extra Delights</h2>
-              <button onClick={() => setShowOrderMore(false)} className="p-2 bg-slate-100 rounded-full"><X size={20} /></button>
+              <h2 className="text-xl font-serif italic text-slate-800">Dasara Specials</h2>
+              <button onClick={() => setShowOrderMore(false)} className="p-2 bg-orange-50 rounded-full"><X size={20} /></button>
             </div>
             <div className="relative mb-6">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
               <input 
                 type="text" 
-                placeholder="Search available..." 
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-sm outline-none" 
+                placeholder="Search menu..." 
+                className="w-full pl-12 pr-4 py-4 bg-orange-50/50 border-none rounded-2xl text-sm outline-none" 
                 value={searchQuery} 
                 onChange={(e) => setSearchQuery(e.target.value)} 
               />
@@ -303,9 +301,9 @@ export default function OrderStatusPage() {
               {Object.keys(groupedMenu).length > 0 ? (
                 Object.keys(groupedMenu).map((cat) => (
                   <div key={cat} className="space-y-3">
-                    <p className="text-[10px] font-black uppercase text-[#b73538] tracking-widest">{cat}</p>
+                    <p className="text-[10px] font-black uppercase text-primary tracking-widest">{cat}</p>
                     {groupedMenu[cat].map((item: any) => (
-                      <button key={item.id} onClick={() => addMoreFood(item)} className="w-full flex justify-between items-center p-5 bg-white border border-slate-50 rounded-2xl shadow-sm active:scale-95 transition-all">
+                      <button key={item.id} onClick={() => addMoreFood(item)} className="w-full flex justify-between items-center p-5 bg-white border border-orange-50 rounded-2xl shadow-sm active:scale-95 transition-all">
                         <span className="text-sm font-bold text-slate-700">{item.name}</span>
                         <span className="text-xs font-black text-slate-400">₹{item.price}</span>
                       </button>
@@ -314,7 +312,7 @@ export default function OrderStatusPage() {
                 ))
               ) : (
                 <div className="text-center py-10">
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No available items found</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No delicacies found</p>
                 </div>
               )}
             </div>
