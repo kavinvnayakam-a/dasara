@@ -44,12 +44,10 @@ export default function OrderStatusPage() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastStatus = useRef<string>('');
 
-  // 1. Audio Setup
   useEffect(() => {
     audioRef.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
   }, []);
 
-  // 2. Firebase Listener
   useEffect(() => {
     if (!id || !firestore) return;
     const unsub = onSnapshot(doc(firestore, "orders", id), (docSnapshot) => {
@@ -69,7 +67,6 @@ export default function OrderStatusPage() {
     return () => unsub();
   }, [id, firestore, isTimerRunning]);
 
-  // 3. 3-Minute Redirect Timer
   useEffect(() => {
     if (!isTimerRunning || !id) return;
     const timerKey = `expiry_${id}`;
@@ -90,7 +87,6 @@ export default function OrderStatusPage() {
     return () => clearInterval(interval);
   }, [isTimerRunning, id, router]);
 
-  // 4. Spice Catch Game Logic (Telangana Fine Dine Theme)
   useEffect(() => {
     if (!gameActive || !canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -158,7 +154,6 @@ export default function OrderStatusPage() {
     };
   }, [gameActive]);
 
-  // 5. Fetch Menu Items
   useEffect(() => {
     if (!firestore) return;
     const fetchMenu = async () => {
@@ -201,7 +196,6 @@ export default function OrderStatusPage() {
     <div className="fixed inset-0 bg-orange-50/30 font-sans overflow-hidden select-none">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-10 opacity-100" />
 
-      {/* Timer Overlay */}
       {isTimerRunning && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[60] bg-slate-900 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-2xl scale-90">
           <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Session ends in:</span>
@@ -211,7 +205,6 @@ export default function OrderStatusPage() {
         </div>
       )}
 
-      {/* Header / Status Bar */}
       <div className={cn(
         "absolute top-8 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50 transition-all duration-700",
         gameActive ? "-translate-y-40 opacity-0" : "translate-y-0 opacity-100"
@@ -236,7 +229,6 @@ export default function OrderStatusPage() {
         </div>
       </div>
 
-      {/* Action Buttons */}
       {!gameActive && (
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50 flex gap-4">
           <button onClick={() => setShowOrderMore(true)} className="flex-1 bg-white h-16 rounded-2xl flex items-center justify-center gap-2 shadow-xl border border-orange-50">
@@ -245,7 +237,7 @@ export default function OrderStatusPage() {
           </button>
           <button onClick={requestHelp} className={cn(
             "flex-1 h-16 rounded-2xl flex items-center justify-center gap-2 shadow-xl transition-all",
-            orderData?.helpRequested ? 'bg-emerald-500 text-white' : 'bg-primary text-white'
+            orderData?.helpRequested ? 'bg-emerald-500 text-white' : 'bg-primary text-white hover:bg-orange-600'
           )}>
             <BellRing size={20} />
             <span className="text-[11px] font-black uppercase tracking-widest">{orderData?.helpRequested ? 'Coming!' : 'Call Staff'}</span>
@@ -253,7 +245,6 @@ export default function OrderStatusPage() {
         </div>
       )}
 
-      {/* Game Overlay */}
       {!gameActive && !showOrderMore && (
         <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-orange-50/40 backdrop-blur-sm p-8">
           <div className="bg-white p-10 rounded-[4rem] shadow-2xl text-center space-y-8 max-w-sm border border-orange-100">
@@ -264,7 +255,7 @@ export default function OrderStatusPage() {
             </div>
             <button 
               onClick={() => { setScore(0); setGameActive(true); setIsGameOver(false); }} 
-              className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl"
+              className="w-full bg-primary text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl hover:bg-orange-600 transition-all"
             >
               {isGameOver ? "Play Again" : "Start Game"}
             </button>
@@ -272,14 +263,12 @@ export default function OrderStatusPage() {
         </div>
       )}
 
-      {/* Score Display */}
       {gameActive && (
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none">
           <span className="text-8xl font-serif italic text-primary drop-shadow-lg">{score}</span>
         </div>
       )}
 
-      {/* Order More Popup */}
       {showOrderMore && (
         <div className="absolute inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-end">
           <div className="w-full bg-white rounded-t-[3rem] p-8 border-t border-orange-100 max-h-[85vh] flex flex-col">

@@ -22,9 +22,9 @@ export function Header({ tableId, timeLeft }: HeaderProps) {
           <div className="
             relative 
             bg-white 
-            h-14 w-14 
+            h-11 w-11 
             rounded-full 
-            shadow-[0_10px_25px_-5px_rgba(0,0,0,0.3)]
+            shadow-[0_4px_10px_rgba(0,0,0,0.15)]
             flex items-center justify-center
             overflow-hidden
             border-2 border-white
@@ -32,8 +32,8 @@ export function Header({ tableId, timeLeft }: HeaderProps) {
             <Image 
               src="https://firebasestorage.googleapis.com/v0/b/swissdelights-2a272.firebasestorage.app/o/Dasara%20Fine%20Dine.jpg?alt=media&token=b7591bfd-13ee-4d28-b8c0-278f3662c5b7" 
               alt="Dasara Logo" 
-              width={50} 
-              height={50} 
+              width={40} 
+              height={40} 
               className="object-cover"
               priority
             />

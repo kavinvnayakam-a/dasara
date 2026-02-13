@@ -79,7 +79,6 @@ export function MenuItemCard({ item, onAddToCart, globalShowImages = true }: Men
         </div>
 
         <div className="mt-8 relative group/btn">
-          {/* Decorative Lines behind button */}
           <div className="absolute top-1/2 -translate-y-1/2 w-full h-px bg-orange-100 scale-x-110 group-hover/btn:bg-primary/20 transition-all duration-500" />
           
           <button
@@ -89,7 +88,7 @@ export function MenuItemCard({ item, onAddToCart, globalShowImages = true }: Men
               "dasara-banner relative z-10 w-full h-16 flex items-center justify-center gap-3 transition-all duration-500 font-black uppercase tracking-[0.2em] text-[10px]",
               isSoldOut 
                 ? "bg-orange-50 text-orange-200 cursor-not-allowed" 
-                : "bg-slate-900 text-white shadow-xl group-hover:bg-primary group-hover:translate-y-[-2px] active:translate-y-0"
+                : "bg-primary text-white shadow-xl hover:bg-orange-600 hover:translate-y-[-2px] active:translate-y-0 shadow-orange-900/10"
             )}
           >
             {isSoldOut ? (
@@ -97,7 +96,7 @@ export function MenuItemCard({ item, onAddToCart, globalShowImages = true }: Men
             ) : (
               <>
                 <span>ADD TO PLATE</span>
-                <div className="bg-white/10 p-1.5 rounded-full ring-1 ring-white/20">
+                <div className="bg-white/20 p-1.5 rounded-full ring-1 ring-white/20">
                   <Plus size={14} strokeWidth={4} />
                 </div>
               </>

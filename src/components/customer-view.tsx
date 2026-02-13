@@ -110,7 +110,7 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
         <div className="max-w-sm w-full space-y-12 text-center">
           <div className="space-y-6">
             <div className="relative inline-block p-1 bg-white rounded-full shadow-2xl ring-4 ring-primary/10">
-              <Image src={LOGO_URL} alt="Dasara Logo" width={140} height={140} className="rounded-full" priority />
+              <Image src={LOGO_URL} alt="Dasara Logo" width={100} height={100} className="rounded-full" priority />
             </div>
             <div className="space-y-2">
               <h2 className="text-4xl font-serif italic text-slate-900 leading-tight">Authentic Flavors,</h2>
@@ -141,7 +141,7 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
 
           <button 
             onClick={() => setShowMenu(true)}
-            className="w-full bg-slate-900 text-white py-6 rounded-full font-black uppercase tracking-widest shadow-2xl shadow-orange-200 flex items-center justify-center gap-3 hover:bg-primary transition-all transform active:scale-95"
+            className="w-full bg-primary text-white py-6 rounded-full font-black uppercase tracking-widest shadow-xl shadow-orange-900/10 flex items-center justify-center gap-3 hover:bg-orange-600 transition-all transform active:scale-95"
           >
             Explore Menu
             <ChevronRight size={20} />
@@ -187,18 +187,16 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
                   }}
                   className="relative group shrink-0"
                 >
-                  {/* Decorative Lines */}
                   <div className={cn(
                     "absolute top-1/2 -translate-y-1/2 w-full h-px transition-all duration-300",
                     activeCategory === category ? "bg-primary/20 scale-x-110" : "bg-transparent scale-x-0"
                   )} />
                   
-                  {/* Banner Shape */}
                   <div className={cn(
                     "dasara-banner relative z-10 px-8 py-3 transition-all duration-300",
                     activeCategory === category 
                       ? "bg-primary text-white shadow-[0_8px_16px_-4px_rgba(234,88,12,0.3)]" 
-                      : "bg-orange-100 text-primary hover:bg-orange-200"
+                      : "bg-orange-50 text-primary hover:bg-orange-100"
                   )}>
                     <span className="font-serif italic text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap">
                       {category}
@@ -264,7 +262,7 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
               </div>
               <button 
                 onClick={() => setSearchQuery("")} 
-                className="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-primary transition-all"
+                className="inline-flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-[0.2em] hover:bg-orange-600 transition-all"
               >
                 Reset Search <ChevronRight size={14} />
               </button>
@@ -289,8 +287,8 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
             <Image 
               src={LOGO_URL} 
               alt="Dasara Logo" 
-              width={100} 
-              height={100} 
+              width={80} 
+              height={80} 
               className="rounded-full" 
             />
           </div>

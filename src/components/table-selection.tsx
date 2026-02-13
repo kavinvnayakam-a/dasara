@@ -24,7 +24,7 @@ export default function TableSelection() {
             NAMASKARAM
           </div>
           <div className="relative inline-block mx-auto p-1 bg-white rounded-full shadow-2xl ring-4 ring-primary/10 mb-6">
-            <Image src={LOGO_URL} alt="Dasara Fine Dine" width={160} height={160} className="rounded-full" priority />
+            <Image src={LOGO_URL} alt="Dasara Fine Dine" width={100} height={100} className="rounded-full" priority />
           </div>
           <div className="space-y-2">
             <h2 className="text-3xl font-serif italic text-slate-900">Welcome to Dasara</h2>
@@ -42,10 +42,10 @@ export default function TableSelection() {
                 onClick={() => handleSelectTable(table)}
                 className="
                   dasara-banner h-20 text-3xl font-black italic
-                  bg-orange-50 text-slate-800
+                  bg-primary text-white
                   transition-all duration-300
-                  hover:bg-primary hover:text-white hover:shadow-xl hover:translate-y-[-4px]
-                  active:translate-y-0
+                  hover:bg-orange-600 hover:shadow-xl hover:translate-y-[-4px]
+                  active:translate-y-0 shadow-orange-900/10
                 "
               >
                 {table}
