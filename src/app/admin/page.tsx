@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import MenuManager from "@/components/admin/menu-manager"; 
 import OrderManager from "@/components/admin/order-manager"; 
@@ -35,20 +35,59 @@ export default function AdminDashboard() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isSyncing, setIsSyncing] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Initialize audio object with a coin drop sound
+    audioRef.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3');
+  }, []);
 
   useEffect(() => {
     if (!firestore) return;
-    const q = query(
+
+    // Listener for takeaway count badge
+    const qTakeaway = query(
       collection(firestore, "orders"), 
       where("tableId", "==", "Takeaway")
     );
     
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubTakeaway = onSnapshot(qTakeaway, (snapshot) => {
       setTakeawayCount(snapshot.size);
     });
+
+    // Global listener for new orders to play sound
+    const qAllOrders = query(collection(firestore, "orders"));
+    let isInitialLoad = true;
+
+    const unsubSound = onSnapshot(qAllOrders, (snapshot) => {
+      if (isInitialLoad) {
+        isInitialLoad = false;
+        return;
+      }
+
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          // Play sound when a new order is detected
+          audioRef.current?.play().catch(() => {
+            // Browsers may block audio until the user interacts with the page
+            console.log("Audio notification pending user interaction");
+          });
+          
+          // Show a quick toast for the new order
+          toast({
+            title: "New Order Received!",
+            description: `Order #${change.doc.data().orderNumber || 'New'} has arrived.`,
+            className: "bg-primary text-white border-none",
+          });
+        }
+      });
+    });
     
-    return () => unsubscribe();
-  }, [firestore]);
+    return () => {
+      unsubTakeaway();
+      unsubSound();
+    };
+  }, [firestore, toast]);
 
   const handleMenuSync = async () => {
     if (!firestore) {
@@ -87,7 +126,7 @@ export default function AdminDashboard() {
       <nav className="w-full md:w-64 bg-slate-900 text-white flex md:flex-col z-40 shadow-2xl">
         
         <div className="hidden md:flex flex-col items-center py-10 border-b border-slate-800">
-          <div className="bg-white p-1 rounded-full mb-4 shadow-lg overflow-hidden w-16 h-16 relative">
+          <div className="bg-white p-1 rounded-full mb-4 shadow-lg overflow-hidden w-16 h-16 relative border-2 border-primary">
              <Image src="https://firebasestorage.googleapis.com/v0/b/swissdelights-2a272.firebasestorage.app/o/Dasara%20Fine%20Dine.jpg?alt=media&token=b7591bfd-13ee-4d28-b8c0-278f3662c5b7" alt="Dasara" fill className="object-cover" />
           </div>
           <h1 className="text-sm font-black uppercase tracking-[0.3em] text-white">Dasara</h1>
@@ -197,7 +236,7 @@ export default function AdminDashboard() {
                 size="sm" 
                 disabled={isSyncing}
                 onClick={handleMenuSync} 
-                className="bg-primary hover:bg-orange-600 text-white border-none text-[10px] font-black uppercase shadow-lg shadow-orange-900/40"
+                className="bg-primary hover:bg-red-700 text-white border-none text-[10px] font-black uppercase shadow-lg shadow-orange-900/40 transition-colors"
               >
                 <Database className={`mr-2 h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`}/> 
                 {isSyncing ? 'Syncing...' : 'Sync Local Data'}
@@ -266,7 +305,7 @@ export default function AdminDashboard() {
         </footer>
       </div>
 
-      <Link href="mailto:info@getpik.in" className="fixed bottom-8 right-8 z-50 bg-primary text-white p-4 rounded-2xl shadow-xl shadow-orange-900/30 hover:scale-110 active:scale-95 transition-all">
+      <Link href="mailto:info@getpik.in" className="fixed bottom-8 right-8 z-50 bg-primary text-white p-4 rounded-2xl shadow-xl shadow-orange-900/30 hover:scale-110 active:scale-95 transition-all hover:bg-red-700">
           <MessageCircleQuestion className="h-6 w-6" />
           <span className="sr-only">Support</span>
       </Link>
