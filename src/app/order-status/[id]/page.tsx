@@ -14,14 +14,12 @@ import { useParams } from 'next/navigation';
 import { 
   Film,
   Ticket,
-  ChevronRight,
-  ChevronLeft
+  ChevronRight
 } from 'lucide-react';
 import Image from 'next/image';
 import placeholderData from '@/app/lib/placeholder-images.json';
 import { useSessionTimer } from '@/hooks/use-session-timer';
 import SessionTimer from '@/components/session-timer';
-import Link from 'next/link';
 
 export default function OrderStatusPage() {
   const params = useParams();
@@ -40,7 +38,19 @@ export default function OrderStatusPage() {
   });
 
   useEffect(() => {
+    // PREVENT BACK NAVIGATION
+    window.history.pushState(null, "", window.location.href);
+    const handlePopState = () => {
+      window.history.pushState(null, "", window.location.href);
+    };
+    window.addEventListener('popstate', handlePopState);
+    
+    // Audio init
     audioRef.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
   }, []);
 
   useEffect(() => {
@@ -83,9 +93,7 @@ export default function OrderStatusPage() {
       <div className="absolute inset-0 overflow-y-auto pb-20 no-scrollbar">
         <div className="max-w-md mx-auto px-6 pt-12 space-y-10">
           
-          <Link href="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-primary transition-colors mb-4">
-             <ChevronLeft size={14} /> Back to Menu
-          </Link>
+          {/* Back to Menu Link Removed per request */}
 
           {/* Order Status Header */}
           <div className="bg-zinc-900/80 backdrop-blur-xl border border-primary/20 p-8 rounded-[2.5rem] shadow-2xl space-y-6 relative overflow-hidden">
@@ -123,21 +131,23 @@ export default function OrderStatusPage() {
           </div>
 
           {/* Ad Banner */}
-          <div className="relative group overflow-hidden rounded-[2rem] border border-primary/20 aspect-[2/1] bg-zinc-900 shadow-2xl">
-            <Image 
-              src={adDisplay.url} 
-              alt={adDisplay.title} 
-              fill 
-              className="object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" 
-              data-ai-hint={adDisplay.hint}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary mb-1">ART Exclusive</p>
-              <h4 className="text-lg font-black italic uppercase text-white tracking-tight leading-none truncate">{adDisplay.title}</h4>
-              <p className="text-[9px] font-bold text-zinc-400 uppercase mt-2">Visit the concierge for more details</p>
+          {adDisplay && (
+            <div className="relative group overflow-hidden rounded-[2rem] border border-primary/20 aspect-[2/1] bg-zinc-900 shadow-2xl">
+              <Image 
+                src={adDisplay.url} 
+                alt={adDisplay.title} 
+                fill 
+                className="object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" 
+                data-ai-hint={adDisplay.hint || "cinema luxury"}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6">
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary mb-1">ART Exclusive</p>
+                <h4 className="text-lg font-black italic uppercase text-white tracking-tight leading-none truncate">{adDisplay.title}</h4>
+                <p className="text-[9px] font-bold text-zinc-400 uppercase mt-2">Visit the concierge for more details</p>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Upcoming Movies Section */}
           <div className="space-y-6">
@@ -151,7 +161,7 @@ export default function OrderStatusPage() {
             </div>
 
             <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-2 px-2">
-              {movieDisplay.map((movie) => (
+              {movieDisplay.map((movie: any) => (
                 <div key={movie.id} className="shrink-0 w-40 space-y-3">
                   <div className="relative aspect-[2/3] rounded-2xl overflow-hidden border border-white/10 shadow-xl group">
                     <Image 
@@ -159,7 +169,7 @@ export default function OrderStatusPage() {
                       alt={movie.title} 
                       fill 
                       className="object-cover transition-transform duration-500 group-hover:scale-110" 
-                      data-ai-hint={movie.hint}
+                      data-ai-hint={movie.hint || "movie poster"}
                     />
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors" />
                     <div className="absolute top-2 right-2">
@@ -179,7 +189,7 @@ export default function OrderStatusPage() {
           {/* Simple Info Message */}
           <div className="bg-primary/5 border border-primary/10 p-6 rounded-3xl text-center">
             <p className="text-[10px] font-bold uppercase tracking-widest text-primary/40">
-              Need more items? Return to the menu to place a new order.
+              Your cinematic treats are on the way. Please stay in your seat and enjoy the pre-show.
             </p>
           </div>
 
