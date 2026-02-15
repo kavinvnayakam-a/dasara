@@ -9,6 +9,7 @@ import KotView from "@/components/admin/kot-view";
 import AnalyticsDashboard from "@/components/admin/analytics-dashboard";
 import OrderHistory from "@/components/admin/order-history"; 
 import AiMenuImporter from "@/components/admin/ai-menu-importer";
+import MovieManager from "@/components/admin/movie-manager";
 import { useFirestore } from "@/firebase";
 import { collection, onSnapshot, query } from "firebase/firestore";
 import { 
@@ -22,7 +23,8 @@ import {
   ShieldCheck,
   Sparkles,
   Film,
-  ChefHat
+  ChefHat,
+  Tv
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -30,7 +32,7 @@ import Image from "next/image";
 const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/dasara-finedine.firebasestorage.app/o/Art%20Cinemas%20Logo.jpeg?alt=media&token=0e8ee706-4ba1-458d-b2b9-d85434f8f2ba";
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'orders' | 'kot' | 'history' | 'menu' | 'analytics' | 'ai-import'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'kot' | 'history' | 'menu' | 'analytics' | 'ai-import' | 'movies'>('orders');
   const [newOrderCount, setNewOrderCount] = useState(0);
   const firestore = useFirestore();
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -139,6 +141,19 @@ export default function AdminDashboard() {
           </button>
 
           <button 
+            onClick={() => setActiveTab('movies')}
+            className={cn(
+              "flex items-center gap-4 px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.1em] transition-all",
+              activeTab === 'movies' 
+              ? "bg-primary text-black shadow-lg shadow-primary/10" 
+              : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200"
+            )}
+          >
+            <Tv className="w-5 h-5" />
+            <span className="hidden md:inline">Theater Ads</span>
+          </button>
+
+          <button 
             onClick={() => setActiveTab('ai-import')}
             className={cn(
               "flex items-center gap-4 px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.1em] transition-all",
@@ -185,7 +200,7 @@ export default function AdminDashboard() {
                 Operations Console / {activeTab}
               </span>
               <h2 className="text-4xl font-black italic uppercase text-white tracking-tighter leading-none">
-                {activeTab === 'orders' ? 'Live Tickets' : activeTab === 'kot' ? 'Kitchen KOT' : activeTab === 'menu' ? 'Theater Menu' : activeTab === 'history' ? 'Order Archives' : activeTab === 'ai-import' ? 'AI Digitizer' : 'Intelligence Dashboard'}
+                {activeTab === 'orders' ? 'Live Tickets' : activeTab === 'kot' ? 'Kitchen KOT' : activeTab === 'menu' ? 'Theater Menu' : activeTab === 'history' ? 'Order Archives' : activeTab === 'ai-import' ? 'AI Digitizer' : activeTab === 'movies' ? 'Theater Ads' : 'Intelligence Dashboard'}
               </h2>
             </div>
 
@@ -231,6 +246,12 @@ export default function AdminDashboard() {
             {activeTab === 'menu' && (
               <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
                 <MenuManager />
+              </div>
+            )}
+
+            {activeTab === 'movies' && (
+              <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
+                <MovieManager />
               </div>
             )}
 

@@ -7,7 +7,8 @@ import {
   doc, 
   onSnapshot,
   collection,
-  getDocs
+  query,
+  orderBy
 } from 'firebase/firestore';
 import { useParams } from 'next/navigation';
 import { 
@@ -29,6 +30,7 @@ export default function OrderStatusPage() {
 
   const [status, setStatus] = useState('Pending');
   const [orderData, setOrderData] = useState<any>(null);
+  const [liveMovies, setLiveMovies] = useState<any[]>([]);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastStatus = useRef<string>('');
@@ -43,7 +45,8 @@ export default function OrderStatusPage() {
 
   useEffect(() => {
     if (!id || !firestore) return;
-    const unsub = onSnapshot(doc(firestore, "orders", id), (docSnapshot) => {
+    
+    const unsubOrder = onSnapshot(doc(firestore, "orders", id), (docSnapshot) => {
       if (docSnapshot.exists()) {
         const data = docSnapshot.data();
         if (lastStatus.current && lastStatus.current !== data.status) {
@@ -54,8 +57,21 @@ export default function OrderStatusPage() {
         setOrderData(data);
       }
     });
-    return () => unsub();
+
+    const unsubMovies = onSnapshot(query(collection(firestore, "movies")), (snapshot) => {
+      const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      setLiveMovies(docs);
+    });
+
+    return () => { unsubOrder(); unsubMovies(); };
   }, [id, firestore]);
+
+  const movies = liveMovies.filter(m => m.type === 'movie');
+  const ads = liveMovies.filter(m => m.type === 'ad');
+
+  // Fallback to placeholders if no live data
+  const movieDisplay = movies.length > 0 ? movies : placeholderData.movies;
+  const adDisplay = ads.length > 0 ? ads[0] : placeholderData.ads[0];
 
   return (
     <div className="fixed inset-0 bg-black font-sans overflow-hidden select-none">
@@ -109,16 +125,16 @@ export default function OrderStatusPage() {
           {/* Ad Banner */}
           <div className="relative group overflow-hidden rounded-[2rem] border border-primary/20 aspect-[2/1] bg-zinc-900 shadow-2xl">
             <Image 
-              src={placeholderData.ads[0].url} 
-              alt="Promotion" 
+              src={adDisplay.url} 
+              alt={adDisplay.title} 
               fill 
               className="object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" 
-              data-ai-hint={placeholderData.ads[0].hint}
+              data-ai-hint={adDisplay.hint}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
             <div className="absolute bottom-6 left-6 right-6">
               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary mb-1">ART Exclusive</p>
-              <h4 className="text-lg font-black italic uppercase text-white tracking-tight leading-none">Upgrade to Gold Class</h4>
+              <h4 className="text-lg font-black italic uppercase text-white tracking-tight leading-none truncate">{adDisplay.title}</h4>
               <p className="text-[9px] font-bold text-zinc-400 uppercase mt-2">Visit the concierge for more details</p>
             </div>
           </div>
@@ -135,7 +151,7 @@ export default function OrderStatusPage() {
             </div>
 
             <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-2 px-2">
-              {placeholderData.movies.map((movie) => (
+              {movieDisplay.map((movie) => (
                 <div key={movie.id} className="shrink-0 w-40 space-y-3">
                   <div className="relative aspect-[2/3] rounded-2xl overflow-hidden border border-white/10 shadow-xl group">
                     <Image 

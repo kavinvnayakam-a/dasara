@@ -67,7 +67,7 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
 
   const categorizedMenu = useMemo(() => {
     // Cinematic Combos ALWAYS at the first line
-    const categoryOrder = ['Cinematic Combos', 'Cinematic Specials', 'Popcorn & Snacks', 'Appetizers', 'Main Course', 'Desserts', 'Beverages'];
+    const categoryOrder = ['Cinematic Combos', 'Combo', 'Cinematic Specials', 'Popcorn & Snacks', 'Appetizers', 'Main Course', 'Desserts', 'Beverages'];
     
     const filtered = menuItems.filter(item => 
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -82,9 +82,13 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
     }, {} as Record<string, MenuItem[]>);
 
     return Object.keys(grouped).sort((a, b) => {
-      const indexA = categoryOrder.indexOf(a);
-      const indexB = categoryOrder.indexOf(b);
-      return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
+      const indexA = categoryOrder.findIndex(cat => a.toLowerCase().includes(cat.toLowerCase()));
+      const indexB = categoryOrder.findIndex(cat => b.toLowerCase().includes(cat.toLowerCase()));
+      
+      const posA = indexA === -1 ? 999 : indexA;
+      const posB = indexB === -1 ? 999 : indexB;
+      
+      return posA - posB;
     }).map(cat => ({ category: cat, items: grouped[cat] }));
   }, [menuItems, searchQuery]);
 
