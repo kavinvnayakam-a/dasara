@@ -25,9 +25,10 @@ import {
   RefreshCw, 
   Eye, 
   EyeOff,
-  AlignLeft // Added for description icon
+  AlignLeft
 } from 'lucide-react';
 import { MenuItem } from '@/lib/types';
+import { useToast } from "@/hooks/use-toast";
 
 export default function MenuManager() {
   const [items, setItems] = useState<MenuItem[]>([]);
@@ -36,6 +37,7 @@ export default function MenuManager() {
   const [file, setFile] = useState<File | null>(null);
   const firestore = useFirestore();
   const storage = useStorage();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!firestore) return;
@@ -88,8 +90,10 @@ export default function MenuManager() {
     try {
       const itemRef = doc(firestore, "menu_items", itemId);
       await updateDoc(itemRef, { image: "", showImage: false });
+      toast({ title: "Image Removed" });
     } catch (err) {
       console.error("Error removing image:", err);
+      toast({ variant: "destructive", title: "Error", description: "Failed to remove image." });
     }
   };
 
@@ -101,9 +105,11 @@ export default function MenuManager() {
       if (imageUrl) {
         const itemRef = doc(firestore, "menu_items", itemId);
         await updateDoc(itemRef, { image: imageUrl, showImage: true });
+        toast({ title: "Image Updated" });
       }
     } catch (err) {
       console.error("Error updating image:", err);
+      toast({ variant: "destructive", title: "Upload Failed", description: "Verify Storage permissions." });
     } finally { setIsUploading(false); }
   };
 
@@ -121,7 +127,7 @@ export default function MenuManager() {
         name: formData.get("name"),
         price: Number(formData.get("price")),
         category: formData.get("category"),
-        description: formData.get("description"), // Saved from form
+        description: formData.get("description"),
         image: imageUrl,
         showImage: imageUrl ? true : false,
         available: true,
@@ -129,8 +135,10 @@ export default function MenuManager() {
       });
       setFile(null);
       (e.target as HTMLFormElement).reset();
+      toast({ title: "Item Added", description: "The new treat is live on the menu." });
     } catch (err) {
       console.error("Error adding item:", err);
+      toast({ variant: "destructive", title: "Add Failed", description: "Check Storage and Firestore permissions." });
     } finally { setIsUploading(false); }
   };
 
@@ -164,7 +172,6 @@ export default function MenuManager() {
           <Input name="price" type="number" placeholder="Price (₹)" required className="border-2 border-stone-800 rounded-xl" />
           <Input name="category" placeholder="Category" required className="border-2 border-stone-800 rounded-xl" />
           
-          {/* DESCRIPTION INPUT FIELD */}
           <Input name="description" placeholder="Short Description" className="border-2 border-stone-800 rounded-xl" />
           
           <div className="relative">
@@ -228,7 +235,6 @@ export default function MenuManager() {
                   </div>
                 </td>
 
-                {/* EDITABLE DESCRIPTION CELL */}
                 <td className="p-4">
                   <textarea 
                     defaultValue={item.description}

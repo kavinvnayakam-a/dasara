@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -24,6 +23,7 @@ import {
   Tv
 } from 'lucide-react';
 import Image from 'next/image';
+import { useToast } from "@/hooks/use-toast";
 
 interface Movie {
   id: string;
@@ -40,6 +40,7 @@ export default function MovieManager() {
   const [file, setFile] = useState<File | null>(null);
   const firestore = useFirestore();
   const storage = useStorage();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!firestore) return;
@@ -56,14 +57,24 @@ export default function MovieManager() {
 
   const handleAddMovie = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!firestore || !storage) return;
+    if (!firestore || !storage) {
+      toast({
+        variant: "destructive",
+        title: "System Error",
+        description: "Firebase services are not initialized.",
+      });
+      return;
+    }
+    
     setIsUploading(true);
     const formData = new FormData(e.currentTarget);
+    
     try {
       let imageUrl = "";
       if (file) {
         imageUrl = await uploadMenuImage(storage, file, "posters") || "";
       }
+      
       await addDoc(collection(firestore, "theater_ads"), {
         title: formData.get("title"),
         hint: formData.get("hint") || "movie poster",
@@ -72,16 +83,39 @@ export default function MovieManager() {
         url: imageUrl,
         timestamp: serverTimestamp()
       });
+      
       setFile(null);
       (e.target as HTMLFormElement).reset();
+      
+      toast({
+        title: "Deployment Successful",
+        description: "New cinematic content is now live on screens.",
+      });
     } catch (err) {
       console.error("Error adding theater content:", err);
+      toast({
+        variant: "destructive",
+        title: "Deployment Failed",
+        description: "Verify that Firebase Storage is enabled in your console.",
+      });
     } finally { setIsUploading(false); }
   };
 
   const handleDelete = async (id: string) => {
     if (!firestore || !confirm("Delete this content permanently?")) return;
-    await deleteDoc(doc(firestore, "theater_ads", id));
+    try {
+      await deleteDoc(doc(firestore, "theater_ads", id));
+      toast({
+        title: "Content Removed",
+        description: "The item has been deleted from the database.",
+      });
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Delete Failed",
+        description: "Could not remove the item. Please try again.",
+      });
+    }
   };
 
   return (
