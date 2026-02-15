@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import MenuManager from "@/components/admin/menu-manager"; 
 import OrderManager from "@/components/admin/order-manager"; 
+import KotView from "@/components/admin/kot-view";
 import AnalyticsDashboard from "@/components/admin/analytics-dashboard";
 import OrderHistory from "@/components/admin/order-history"; 
 import AiMenuImporter from "@/components/admin/ai-menu-importer";
@@ -29,7 +30,7 @@ import Image from "next/image";
 const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/dasara-finedine.firebasestorage.app/o/Art%20Cinemas%20Logo.jpeg?alt=media&token=0e8ee706-4ba1-458d-b2b9-d85434f8f2ba";
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'orders' | 'history' | 'menu' | 'analytics' | 'ai-import'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'kot' | 'history' | 'menu' | 'analytics' | 'ai-import'>('orders');
   const [newOrderCount, setNewOrderCount] = useState(0);
   const firestore = useFirestore();
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -83,7 +84,7 @@ export default function AdminDashboard() {
 
         <div className="flex md:flex-col flex-1 gap-2 p-4 md:px-6">
           <button 
-            onClick={() => { setActiveTab('orders'); setNewOrderCount(0); }}
+            onClick={() => setActiveTab('orders')}
             className={cn(
               "flex items-center gap-4 px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.1em] transition-all relative",
               activeTab === 'orders' 
@@ -91,9 +92,22 @@ export default function AdminDashboard() {
               : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200"
             )}
           >
+            <LayoutDashboard className="w-5 h-5" />
+            <span className="hidden md:inline">Live Tickets</span>
+          </button>
+
+          <button 
+            onClick={() => { setActiveTab('kot'); setNewOrderCount(0); }}
+            className={cn(
+              "flex items-center gap-4 px-6 py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.1em] transition-all relative",
+              activeTab === 'kot' 
+              ? "bg-primary text-black shadow-lg shadow-primary/10" 
+              : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200"
+            )}
+          >
             <ChefHat className="w-5 h-5" />
-            <span className="hidden md:inline">Live Tickets / KOT</span>
-            {newOrderCount > 0 && activeTab !== 'orders' && (
+            <span className="hidden md:inline">Kitchen (KOT)</span>
+            {newOrderCount > 0 && activeTab !== 'kot' && (
               <span className="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full animate-ping" />
             )}
           </button>
@@ -171,7 +185,7 @@ export default function AdminDashboard() {
                 Operations Console / {activeTab}
               </span>
               <h2 className="text-4xl font-black italic uppercase text-white tracking-tighter leading-none">
-                {activeTab === 'orders' ? 'Live KOT' : activeTab === 'menu' ? 'Theater Menu' : activeTab === 'history' ? 'Order Archives' : activeTab === 'ai-import' ? 'AI Digitizer' : 'Intelligence Dashboard'}
+                {activeTab === 'orders' ? 'Live Tickets' : activeTab === 'kot' ? 'Kitchen KOT' : activeTab === 'menu' ? 'Theater Menu' : activeTab === 'history' ? 'Order Archives' : activeTab === 'ai-import' ? 'AI Digitizer' : 'Intelligence Dashboard'}
               </h2>
             </div>
 
@@ -199,6 +213,12 @@ export default function AdminDashboard() {
             {activeTab === 'orders' && (
               <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
                 <OrderManager />
+              </div>
+            )}
+
+            {activeTab === 'kot' && (
+              <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
+                <KotView />
               </div>
             )}
 
