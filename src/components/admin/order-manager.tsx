@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from 'react';
@@ -8,9 +9,10 @@ import {
 } from 'firebase/firestore';
 import { Order } from '@/lib/types';
 import { 
-  CheckCircle2, Printer, Square, CheckSquare, X, Save, Check
+  CheckCircle2, Printer, Square, CheckSquare, X, Check, Clock, ChevronRight
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface PrintSettings {
   storeName: string;
@@ -26,7 +28,6 @@ export default function OrderManager() {
   const [selectedForBill, setSelectedForBill] = useState<string[]>([]);
   const [showSettings, setShowSettings] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [printTime, setPrintTime] = useState("");
   const firestore = useFirestore();
   
   const [printSettings, setPrintSettings] = useState<PrintSettings>({
@@ -41,8 +42,7 @@ export default function OrderManager() {
 
   useEffect(() => {
     setIsMounted(true);
-    setPrintTime(new Date().toLocaleTimeString());
-  }, [selectedTable, selectedForBill]);
+  }, []);
 
   useEffect(() => {
     if (!firestore) return;
@@ -80,48 +80,47 @@ export default function OrderManager() {
     const items = [...orderSnap.data().items];
     items[itemIndex].status = "Served";
     await updateDoc(orderRef, { items });
-    toast({ title: "Item Marked as Served" });
   };
 
   const triggerFinalServed = async (orderId: string) => {
     if (!firestore) return;
-    await updateDoc(doc(firestore, "orders", orderId), { 
-      status: "Served", 
-      helpRequested: false 
+    // Archive specifically on completion
+    const orderRef = doc(firestore, "orders", orderId);
+    const snap = await getDoc(orderRef);
+    if (!snap.exists()) return;
+
+    const data = snap.data();
+    const batch = writeBatch(firestore);
+    batch.set(doc(collection(firestore, "order_history")), { 
+      ...data, 
+      status: "Completed",
+      archivedAt: serverTimestamp() 
     });
-    toast({ title: "ART Cinema Treats Served!" });
+    batch.delete(orderRef);
+    await batch.commit();
+
+    toast({ title: "Ticket Completed & Archived" });
   };
 
   const resolveHelp = async (orderId: string) => {
     if (!firestore) return;
     await updateDoc(doc(firestore, "orders", orderId), { helpRequested: false });
-    toast({ title: "Staff Assistance Resolved" });
-  };
-
-  const archiveTable = async (tableId: string) => {
-    if (!firestore) return;
-    const toArchive = tableMap[tableId]?.filter(o => o.status === 'Served') || [];
-    if (toArchive.length === 0) return toast({ title: "No served orders found", variant: "destructive" });
-    
-    const batch = writeBatch(firestore);
-    toArchive.forEach(o => {
-      batch.set(doc(collection(firestore, "order_history")), { ...o, archivedAt: serverTimestamp() });
-      batch.delete(doc(firestore, "orders", o.id));
-    });
-    await batch.commit();
-    toast({ title: "Seat Cleared & Archived" });
   };
 
   const saveSettings = async () => {
     if (!firestore) return;
     await setDoc(doc(firestore, "settings", "print_template"), printSettings);
     setShowSettings(false);
-    toast({ title: "Receipt Settings Saved" });
+  };
+
+  const formatOrderTime = (ts: any) => {
+    if (!ts) return "";
+    const date = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   };
 
   if (!isMounted) return null;
 
-  // Generate 25 composite IDs: "Screen 1 - Seat 1", etc.
   const allSeatIds: string[] = [];
   for (let s = 1; s <= 5; s++) {
     for (let st = 1; st <= 5; st++) {
@@ -141,8 +140,9 @@ export default function OrderManager() {
             font-family: monospace;
           }
         }
-      `}</style>
+      `}_</style>
 
+      {/* THERMAL RECEIPT PREVIEW (HIDDEN) */}
       <div id="thermal-bill" className="hidden print:block">
         <div className="text-center border-b border-black pb-2 mb-2">
           <h2 className="text-lg font-bold uppercase">{printSettings.storeName}</h2>
@@ -151,7 +151,7 @@ export default function OrderManager() {
         </div>
         <div className="flex justify-between font-bold mb-2 text-xs">
           <span>{selectedTable}</span>
-          <span>{printTime}</span>
+          <span>{new Date().toLocaleTimeString()}</span>
         </div>
         <div className="border-b border-black mb-2 text-xs">
           {orders.filter(o => selectedForBill.includes(o.id)).map(order => (
@@ -167,84 +167,144 @@ export default function OrderManager() {
         </div>
         <div className="flex justify-between font-bold text-sm">
           <span>GRAND TOTAL</span>
-          <span>₹{orders.filter(o => selectedForBill.includes(o.id)).reduce((a, b) => a + b.totalPrice, 0)}</span>
+          <span>₹{orders.filter(o => selectedForBill.includes(o.id)).reduce((a, b) => a + (b.totalPrice || 0), 0)}</span>
         </div>
         <p className="text-center mt-6 text-xs italic">{printSettings.footerMessage}</p>
       </div>
 
-      <div className="lg:col-span-1 h-[70vh] overflow-y-auto pr-2 space-y-4">
-        <button onClick={() => setShowSettings(true)} className="w-full p-4 bg-white rounded-2xl border-2 border-slate-900 font-black flex items-center justify-center gap-2 text-xs">
-          RECEIPT SETUP
-        </button>
-        <div className="grid grid-cols-2 gap-3">
-          {allSeatIds.map((tId) => {
+      {/* SEAT GRID SIDEBAR */}
+      <div className="lg:col-span-1 space-y-4">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-xl">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xs font-black uppercase tracking-widest text-zinc-500">Theater Map</h3>
+            <button onClick={() => setShowSettings(true)} className="p-2 hover:text-primary transition-colors">
+              <Settings size={16} />
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-5 gap-2 max-h-[50vh] overflow-y-auto no-scrollbar pr-1">
+            {allSeatIds.map((tId) => {
               const hasHelp = tableMap[tId]?.some(o => o.helpRequested);
               const isActive = tableMap[tId]?.length > 0;
               const shortId = tId.replace('Screen ', 'S').replace(' - Seat ', '-');
               return (
-                  <button 
-                    key={tId} 
-                    onClick={() => setSelectedTable(tId)} 
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      selectedTable === tId ? "bg-slate-900 text-white border-slate-900 shadow-[4px_4px_0_0_#d4af37]" : 
-                      hasHelp ? "bg-red-500 text-white border-slate-900 animate-pulse" :
-                      isActive ? "bg-primary text-black border-slate-900" : "bg-zinc-100 text-zinc-400 border-zinc-200"
-                    }`}
-                  >
-                    <span className="text-xs font-black italic">{shortId}</span>
-                  </button>
+                <button 
+                  key={tId} 
+                  onClick={() => setSelectedTable(tId)} 
+                  className={cn(
+                    "aspect-square rounded-lg border-2 text-[9px] font-black transition-all flex items-center justify-center",
+                    selectedTable === tId ? "bg-primary text-black border-primary scale-110 shadow-lg shadow-primary/20 z-10" : 
+                    hasHelp ? "bg-red-500 text-white border-red-400 animate-pulse" :
+                    isActive ? "bg-zinc-800 text-primary border-primary/30" : "bg-zinc-900 text-zinc-700 border-zinc-800 hover:border-zinc-700"
+                  )}
+                >
+                  {shortId}
+                </button>
               )
-          })}
+            })}
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-3xl p-6">
+          <p className="text-[10px] font-black uppercase text-primary tracking-widest mb-1">Live Load</p>
+          <div className="flex items-end gap-2">
+            <span className="text-4xl font-black text-white italic tracking-tighter">{orders.length}</span>
+            <span className="text-[10px] font-bold text-zinc-500 uppercase pb-1.5">Active Tickets</span>
+          </div>
         </div>
       </div>
 
+      {/* KOT VIEW */}
       <div className="lg:col-span-3 space-y-6">
         {selectedTable ? (
-          <div className="animate-in fade-in duration-300">
-            <div className="flex justify-between items-center bg-slate-900 p-6 rounded-[2.5rem] text-white mb-6 border-b-4 border-primary">
+          <div className="animate-in fade-in duration-500">
+            <div className="flex justify-between items-center bg-zinc-900 p-8 rounded-[2.5rem] border border-zinc-800 shadow-2xl mb-8">
               <div>
-                <h3 className="text-2xl font-black italic uppercase tracking-tighter">{selectedTable}</h3>
-                <p className="text-[10px] text-primary font-bold uppercase">{tableMap[selectedTable]?.length || 0} ACTIVE ORDERS</p>
+                <div className="flex items-center gap-3 text-primary mb-2">
+                   <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                   <span className="text-[10px] font-black uppercase tracking-[0.3em]">Seat Focus Mode</span>
+                </div>
+                <h3 className="text-3xl font-black italic uppercase tracking-tighter text-white">{selectedTable}</h3>
               </div>
-              <div className="flex gap-2">
-                <button onClick={() => window.print()} className="bg-primary text-black px-4 py-3 rounded-xl font-black text-xs uppercase italic flex items-center gap-2 shadow-[4px_4px_0_0_#000]"><Printer size={16}/> Print</button>
-                <button onClick={() => archiveTable(selectedTable)} className="bg-red-500 text-white px-4 py-3 rounded-xl font-black text-xs uppercase italic shadow-[4px_4px_0_0_#000]">Clear</button>
+              <div className="flex gap-3">
+                <button onClick={() => window.print()} className="bg-white text-black px-6 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center gap-2 hover:bg-primary transition-all shadow-xl">
+                  <Printer size={18}/> Print Bill
+                </button>
+                <button onClick={() => setSelectedTable(null)} className="p-3 bg-zinc-800 text-zinc-400 rounded-2xl hover:text-white transition-colors">
+                  <X size={24}/>
+                </button>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {tableMap[selectedTable]?.map((order) => (
-                <div key={order.id} className={`bg-white border-4 border-slate-900 p-6 rounded-[2.5rem] shadow-xl relative flex flex-col ${order.helpRequested ? 'ring-8 ring-red-500 ring-inset' : ''}`}>
-                  
-                  {order.helpRequested && (
-                    <div className="mb-4 bg-red-500 p-4 rounded-2xl flex items-center justify-between text-white">
-                        <span className="font-black italic uppercase text-xs animate-bounce">Help Needed!</span>
-                        <button onClick={() => resolveHelp(order.id)} className="bg-white text-red-500 px-3 py-1 rounded-lg font-black uppercase text-[10px]">Resolve</button>
+                <div key={order.id} className={cn(
+                  "bg-zinc-900 border-2 rounded-[2.5rem] p-8 relative flex flex-col transition-all shadow-2xl overflow-hidden",
+                  order.helpRequested ? 'border-red-500 shadow-red-500/10' : 'border-zinc-800'
+                )}>
+                  {/* Status Overlay for served */}
+                  {order.status === 'Served' && (
+                    <div className="absolute top-4 right-4 bg-emerald-500/20 text-emerald-500 px-3 py-1 rounded-full text-[9px] font-black uppercase border border-emerald-500/30">
+                      Already Served
                     </div>
                   )}
 
-                  <div className="flex justify-between items-center mb-4">
-                    <button onClick={() => setSelectedForBill(prev => prev.includes(order.id) ? prev.filter(x => x !== order.id) : [...prev, order.id])}>
-                       {selectedForBill.includes(order.id) ? <CheckSquare size={24} className="text-primary"/> : <Square size={24}/>}
-                    </button>
-                    <span className="font-black text-xs bg-slate-100 px-2 py-1 rounded">#{order.orderNumber}</span>
+                  <div className="flex justify-between items-center mb-6">
+                    <div className="flex items-center gap-4">
+                      <button 
+                        onClick={() => setSelectedForBill(prev => prev.includes(order.id) ? prev.filter(x => x !== order.id) : [...prev, order.id])}
+                        className={cn("transition-colors", selectedForBill.includes(order.id) ? "text-primary" : "text-zinc-700 hover:text-zinc-500")}
+                      >
+                        {selectedForBill.includes(order.id) ? <CheckSquare size={28}/> : <Square size={28}/>}
+                      </button>
+                      <div className="flex flex-col">
+                         <span className="text-[10px] font-black uppercase text-zinc-500 tracking-widest leading-none mb-1">Order Ref</span>
+                         <span className="font-black text-sm text-white italic">#{order.orderNumber}</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                       <span className="text-[10px] font-black uppercase text-primary tracking-widest leading-none block mb-1">Time</span>
+                       <div className="flex items-center gap-2 text-zinc-400 font-bold text-xs">
+                          <Clock size={12}/> {formatOrderTime(order.timestamp)}
+                       </div>
+                    </div>
                   </div>
+
+                  {order.helpRequested && (
+                    <div className="mb-6 bg-red-500 p-4 rounded-2xl flex items-center justify-between text-white shadow-lg animate-pulse">
+                        <span className="font-black italic uppercase text-[11px] tracking-widest flex items-center gap-2">
+                           Bell Notification
+                        </span>
+                        <button onClick={() => resolveHelp(order.id)} className="bg-white text-red-500 px-4 py-2 rounded-xl font-black uppercase text-[10px] hover:scale-105 transition-all shadow-md">Acknowledge</button>
+                    </div>
+                  )}
 
                   <div className="space-y-4 flex-1">
                     {order.status === 'Pending' && (
-                      <button onClick={() => approveOrder(order.id)} className="w-full bg-primary py-4 rounded-2xl font-black uppercase italic text-sm flex items-center justify-center gap-2 border-2 border-slate-900 shadow-[4px_4px_0_0_#000] mb-4 text-black">
-                        <Check size={18}/> Approve Ticket
+                      <button onClick={() => approveOrder(order.id)} className="w-full bg-primary text-black py-5 rounded-2xl font-black uppercase italic text-xs flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] transition-all mb-4">
+                        <Check size={20}/> Approve KOT
                       </button>
                     )}
 
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {order.items.map((item, idx) => (
-                        <div key={idx} className={`flex justify-between items-center p-3 rounded-xl border-2 ${item.status === 'Served' ? 'bg-emerald-50 border-emerald-100 opacity-60' : 'bg-orange-50 border-orange-100'}`}>
-                          <span className={`text-xs font-bold uppercase italic ${item.status === 'Served' ? 'line-through text-slate-400' : 'text-slate-800'}`}>
-                             {item.quantity}x {item.name}
-                          </span>
+                        <div key={idx} className={cn(
+                          "flex justify-between items-center p-4 rounded-2xl border-2 transition-all group",
+                          item.status === 'Served' ? 'bg-emerald-500/5 border-emerald-500/20 opacity-50' : 'bg-zinc-800/50 border-zinc-700/50 hover:border-zinc-600'
+                        )}>
+                          <div className="flex items-center gap-3">
+                            <span className="text-primary font-black italic text-sm">{item.quantity}x</span>
+                            <span className={cn("text-xs font-bold uppercase italic", item.status === 'Served' ? 'line-through text-zinc-500' : 'text-zinc-100')}>
+                               {item.name}
+                            </span>
+                          </div>
                           {item.status !== 'Served' && (
-                            <button onClick={() => markItemServed(order.id, idx)} className="bg-slate-900 text-primary px-3 py-1 rounded-lg text-[10px] font-black uppercase italic">Serve</button>
+                            <button 
+                              onClick={() => markItemServed(order.id, idx)} 
+                              className="bg-zinc-800 text-primary border border-primary/20 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase italic hover:bg-primary hover:text-black transition-all"
+                            >
+                              Serve
+                            </button>
                           )}
                         </div>
                       ))}
@@ -253,41 +313,55 @@ export default function OrderManager() {
 
                   <button 
                     onClick={() => triggerFinalServed(order.id)} 
-                    className={`mt-6 w-full py-4 rounded-2xl font-black uppercase italic text-xs flex items-center justify-center gap-2 border-2 border-slate-900 transition-all ${order.status === 'Served' ? 'bg-zinc-100 text-zinc-400 border-zinc-200' : 'bg-emerald-500 text-white shadow-[4px_4px_0_0_#000]'}`}
+                    className={cn(
+                      "mt-8 w-full py-5 rounded-2xl font-black uppercase italic text-[11px] tracking-widest flex items-center justify-center gap-3 border-2 transition-all shadow-xl",
+                      order.status === 'Served' ? 'bg-zinc-800 text-zinc-600 border-zinc-700 cursor-not-allowed' : 'bg-primary text-black border-primary hover:scale-[1.02]'
+                    )}
                     disabled={order.status === 'Served'}
                   >
-                    <CheckCircle2 size={16}/> {order.status === 'Served' ? 'WATCHING SHOW' : 'FINAL SERVE'}
+                    <CheckCircle2 size={20}/> 
+                    {order.status === 'Served' ? 'Order Finished' : 'Complete & Archive'}
                   </button>
                 </div>
               ))}
             </div>
           </div>
         ) : (
-          <div className="h-full min-h-[400px] flex items-center justify-center bg-white border-4 border-dashed border-zinc-200 rounded-[3rem] text-zinc-300 font-black uppercase italic p-12 text-center">
-            Select a Seat to view orders
+          <div className="h-full min-h-[500px] flex flex-col items-center justify-center bg-zinc-900/50 border-4 border-dashed border-zinc-800 rounded-[3rem] p-12 text-center group">
+            <div className="relative mb-6">
+               <div className="absolute -inset-4 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all" />
+               <LayoutDashboard size={64} className="text-zinc-800 relative z-10 group-hover:text-zinc-700 transition-colors" />
+            </div>
+            <h3 className="text-2xl font-black uppercase italic text-zinc-700 tracking-tighter group-hover:text-zinc-600 transition-colors">Theater Terminal Ready</h3>
+            <p className="text-[10px] font-bold text-zinc-800 uppercase tracking-[0.4em] mt-3">Select a seat to manage active tickets</p>
           </div>
         )}
       </div>
 
+      {/* SETTINGS MODAL */}
       {showSettings && (
-        <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-[3rem] border-4 border-slate-900 p-8 flex flex-col gap-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-black uppercase italic tracking-tighter">Receipt Layout</h2>
-              <button onClick={() => setShowSettings(false)} className="p-2 bg-slate-100 rounded-full"><X size={20}/></button>
+        <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-6 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-zinc-900 w-full max-w-md rounded-[3rem] border border-zinc-800 p-10 shadow-2xl">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white">Receipt Design</h2>
+              <button onClick={() => setShowSettings(false)} className="p-3 bg-zinc-800 rounded-2xl text-zinc-500 hover:text-white transition-all"><X size={20}/></button>
             </div>
-            <div className="space-y-4 overflow-y-auto max-h-[60vh]">
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-slate-400">Name</label>
-                <input className="w-full p-4 bg-zinc-50 rounded-2xl font-bold" value={printSettings.storeName} onChange={e => setPrintSettings({...printSettings, storeName: e.target.value})} />
+            <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 no-scrollbar">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Cinema Brand Name</label>
+                <input className="w-full p-4 bg-zinc-800 border border-zinc-700 rounded-2xl font-bold text-white outline-none focus:border-primary" value={printSettings.storeName} onChange={e => setPrintSettings({...printSettings, storeName: e.target.value})} />
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-slate-400">Address</label>
-                <textarea className="w-full p-4 bg-zinc-50 rounded-2xl font-bold h-24" value={printSettings.address} onChange={e => setPrintSettings({...printSettings, address: e.target.value})} />
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Physical Address</label>
+                <textarea className="w-full p-4 bg-zinc-800 border border-zinc-700 rounded-2xl font-bold text-white h-24 outline-none focus:border-primary resize-none" value={printSettings.address} onChange={e => setPrintSettings({...printSettings, address: e.target.value})} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Support Line</label>
+                <input className="w-full p-4 bg-zinc-800 border border-zinc-700 rounded-2xl font-bold text-white outline-none focus:border-primary" value={printSettings.phone} onChange={e => setPrintSettings({...printSettings, phone: e.target.value})} />
               </div>
             </div>
-            <button onClick={saveSettings} className="w-full bg-slate-900 text-primary py-5 rounded-3xl font-black uppercase italic shadow-[0_4px_0_0_#000]">
-              Save Layout
+            <button onClick={saveSettings} className="w-full bg-primary text-black py-5 rounded-2xl font-black uppercase italic mt-8 shadow-xl hover:scale-[1.02] transition-all">
+              Commit Changes
             </button>
           </div>
         </div>
