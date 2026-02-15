@@ -10,21 +10,18 @@ import {
   doc, 
   deleteDoc, 
   addDoc, 
-  serverTimestamp, 
-  setDoc 
+  serverTimestamp 
 } from 'firebase/firestore';
 import { uploadMenuImage } from '@/lib/upload-image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Trash2, 
   Camera, 
   Loader2, 
-  Plus, 
-  X, 
-  RefreshCw,
-  Tv,
-  Film
+  Film,
+  Tv
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -34,6 +31,7 @@ interface Movie {
   url: string;
   hint: string;
   type: 'movie' | 'ad';
+  details?: string;
 }
 
 export default function MovieManager() {
@@ -46,7 +44,7 @@ export default function MovieManager() {
   useEffect(() => {
     if (!firestore) return;
 
-    const unsub = onSnapshot(collection(firestore, "movies"), (snapshot) => {
+    const unsub = onSnapshot(collection(firestore, "theater_ads"), (snapshot) => {
       setMovies(snapshot.docs.map(doc => ({ 
         id: doc.id, 
         ...doc.data() 
@@ -66,62 +64,71 @@ export default function MovieManager() {
       if (file) {
         imageUrl = await uploadMenuImage(storage, file, "posters") || "";
       }
-      await addDoc(collection(firestore, "movies"), {
+      await addDoc(collection(firestore, "theater_ads"), {
         title: formData.get("title"),
         hint: formData.get("hint") || "movie poster",
         type: formData.get("type") || "movie",
+        details: formData.get("details") || "",
         url: imageUrl,
         timestamp: serverTimestamp()
       });
       setFile(null);
       (e.target as HTMLFormElement).reset();
     } catch (err) {
-      console.error("Error adding movie:", err);
+      console.error("Error adding theater content:", err);
     } finally { setIsUploading(false); }
   };
 
   const handleDelete = async (id: string) => {
-    if (!firestore || !confirm("Delete this poster permanently?")) return;
-    await deleteDoc(doc(firestore, "movies", id));
+    if (!firestore || !confirm("Delete this content permanently?")) return;
+    await deleteDoc(doc(firestore, "theater_ads", id));
   };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       
-      {/* ADD MOVIE FORM */}
+      {/* ADD THEATER CONTENT FORM */}
       <section className="bg-[#121212] border-2 border-zinc-800 p-8 rounded-[2.5rem] shadow-2xl">
         <h2 className="text-xl font-black uppercase italic mb-6 flex items-center gap-3 text-primary">
           <Film className="w-6 h-6" /> Deploy New Theater Content
         </h2>
-        <form onSubmit={handleAddMovie} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Title</label>
-            <Input name="title" placeholder="e.g. Gladiator II" required className="bg-zinc-900 border-zinc-800 text-white rounded-xl" />
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Visual Keyword</label>
-            <Input name="hint" placeholder="e.g. cinema luxury" className="bg-zinc-900 border-zinc-800 text-white rounded-xl" />
+        <form onSubmit={handleAddMovie} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Title</label>
+              <Input name="title" placeholder="e.g. Gladiator II" required className="bg-zinc-900 border-zinc-800 text-white rounded-xl" />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Visual Keyword</label>
+              <Input name="hint" placeholder="e.g. cinema luxury" className="bg-zinc-900 border-zinc-800 text-white rounded-xl" />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Format</label>
+              <select name="type" className="w-full h-10 px-3 bg-zinc-900 border border-zinc-800 text-white rounded-xl text-sm outline-none">
+                <option value="movie">Upcoming Movie</option>
+                <option value="ad">Theater Ad Banner</option>
+              </select>
+            </div>
+            
+            <div className="relative">
+              <label className="flex items-center justify-center w-full h-10 border-2 border-dashed border-zinc-800 rounded-xl cursor-pointer hover:bg-zinc-900 transition-all text-zinc-500 hover:text-primary">
+                <Camera className="w-4 h-4 mr-2" />
+                <span className="text-[10px] font-black uppercase">{file ? "Ready" : "Upload Image"}</span>
+                <input type="file" className="hidden" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+              </label>
+            </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Format</label>
-            <select name="type" className="w-full h-10 px-3 bg-zinc-900 border border-zinc-800 text-white rounded-xl text-sm outline-none">
-              <option value="movie">Upcoming Movie</option>
-              <option value="ad">Theater Ad Banner</option>
-            </select>
-          </div>
-          
-          <div className="relative">
-            <label className="flex items-center justify-center w-full h-10 border-2 border-dashed border-zinc-800 rounded-xl cursor-pointer hover:bg-zinc-900 transition-all text-zinc-500 hover:text-primary">
-              <Camera className="w-4 h-4 mr-2" />
-              <span className="text-[10px] font-black uppercase">{file ? "Ready" : "Upload Image"}</span>
-              <input type="file" className="hidden" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-            </label>
+            <label className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Details / Description</label>
+            <Textarea name="details" placeholder="Add a short description or release date..." className="bg-zinc-900 border-zinc-800 text-white rounded-xl resize-none h-24" />
           </div>
 
-          <Button disabled={isUploading} className="bg-primary text-black hover:bg-white font-black uppercase italic h-10 rounded-xl">
-            {isUploading ? <Loader2 className="animate-spin" /> : "Deploy to Screens"}
+          <Button disabled={isUploading} className="w-full bg-primary text-black hover:bg-white font-black uppercase italic h-12 rounded-xl">
+            {isUploading ? <Loader2 className="animate-spin mr-2" /> : null}
+            {isUploading ? "Uploading..." : "Deploy to Screens"}
           </Button>
         </form>
       </section>
@@ -146,6 +153,7 @@ export default function MovieManager() {
                  <p className="font-black italic uppercase text-white leading-none tracking-tighter text-sm truncate">
                    {movie.title}
                  </p>
+                 {movie.details && <p className="text-[8px] text-zinc-400 mt-1 line-clamp-1">{movie.details}</p>}
                </div>
 
                <button 

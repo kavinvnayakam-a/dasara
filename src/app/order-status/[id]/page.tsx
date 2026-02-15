@@ -70,7 +70,7 @@ export default function OrderStatusPage() {
       }
     });
 
-    const unsubMovies = onSnapshot(query(collection(firestore, "movies")), (snapshot) => {
+    const unsubMovies = onSnapshot(query(collection(firestore, "theater_ads")), (snapshot) => {
       const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       setLiveMovies(docs);
     });
@@ -144,7 +144,11 @@ export default function OrderStatusPage() {
               <div className="absolute bottom-6 left-6 right-6">
                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary mb-1">ART Exclusive</p>
                 <h4 className="text-lg font-black italic uppercase text-white tracking-tight leading-none truncate">{adDisplay.title}</h4>
-                <p className="text-[9px] font-bold text-zinc-400 uppercase mt-2">Visit the concierge for more details</p>
+                {adDisplay.details ? (
+                  <p className="text-[9px] font-bold text-zinc-300 uppercase mt-2 line-clamp-2">{adDisplay.details}</p>
+                ) : (
+                  <p className="text-[9px] font-bold text-zinc-400 uppercase mt-2">Visit the concierge for more details</p>
+                )}
               </div>
             </div>
           )}
@@ -178,9 +182,12 @@ export default function OrderStatusPage() {
                        </div>
                     </div>
                   </div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-center text-zinc-400 truncate px-1">
-                    {movie.title}
-                  </p>
+                  <div className="px-1 text-center">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-200 truncate">
+                      {movie.title}
+                    </p>
+                    {movie.details && <p className="text-[8px] text-zinc-500 font-bold uppercase mt-1 truncate">{movie.details}</p>}
+                  </div>
                 </div>
               ))}
             </div>
