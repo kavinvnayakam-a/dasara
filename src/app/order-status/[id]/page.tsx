@@ -10,7 +10,7 @@ import {
   query,
   orderBy
 } from 'firebase/firestore';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { 
   Film,
   Ticket,
@@ -23,6 +23,7 @@ import SessionTimer from '@/components/session-timer';
 
 export default function OrderStatusPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
   const firestore = useFirestore();
 
@@ -33,8 +34,9 @@ export default function OrderStatusPage() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastStatus = useRef<string>('');
 
+  // Automatically redirect to thank you page when timer hits zero
   const { timeLeft } = useSessionTimer(() => {
-    console.log("Session demo concluded");
+    router.push('/thanks');
   });
 
   useEffect(() => {
@@ -93,8 +95,6 @@ export default function OrderStatusPage() {
       <div className="absolute inset-0 overflow-y-auto pb-20 no-scrollbar">
         <div className="max-w-md mx-auto px-6 pt-12 space-y-10">
           
-          {/* Back to Menu Link Removed per request */}
-
           {/* Order Status Header */}
           <div className="bg-zinc-900/80 backdrop-blur-xl border border-primary/20 p-8 rounded-[2.5rem] shadow-2xl space-y-6 relative overflow-hidden">
             <div className="flex justify-between items-center relative z-10">
