@@ -112,32 +112,32 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black overflow-x-hidden">
       <Header tableId={tableId} onCartClick={() => setCartOpen(true)} timeLeft={timeLeft} />
       
-      <div className="sticky top-20 z-30 bg-black/90 backdrop-blur-xl border-b border-primary/10 px-4 py-6 space-y-4">
-        <div className="max-w-5xl mx-auto flex flex-col gap-6">
+      <div className="sticky top-20 z-30 bg-black/95 backdrop-blur-xl border-b border-primary/10 px-4 py-4 md:py-6 space-y-4">
+        <div className="max-w-5xl mx-auto flex flex-col gap-4">
           <div className="relative group">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors" size={20} />
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors" size={18} />
             <input 
               type="text"
               placeholder="Search cinematic treats..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-14 pl-14 pr-14 bg-zinc-900/50 border border-primary/10 rounded-full text-sm font-bold text-primary focus:ring-2 ring-primary/20 transition-all outline-none"
+              className="w-full h-12 md:h-14 pl-12 pr-12 bg-zinc-900/50 border border-primary/10 rounded-full text-xs md:text-sm font-bold text-primary focus:ring-2 ring-primary/20 transition-all outline-none"
             />
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery("")}
-                className="absolute right-5 top-1/2 -translate-y-1/2 p-1.5 bg-primary/20 rounded-full hover:bg-primary/30 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 bg-primary/20 rounded-full hover:bg-primary/30 transition-colors"
               >
-                <X size={16} className="text-primary" />
+                <X size={14} className="text-primary" />
               </button>
             )}
           </div>
 
           {!searchQuery && (
-            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 items-center">
+            <div className="flex flex-wrap gap-2 md:gap-3 items-center justify-start md:justify-center">
               {categorizedMenu.map(({ category }) => (
                 <button
                   key={category}
@@ -146,7 +146,7 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
                     setActiveCategory(category);
                   }}
                   className={cn(
-                    "shrink-0 px-6 py-2.5 rounded-full transition-all duration-300 font-bold uppercase tracking-widest text-[10px] border",
+                    "shrink-0 px-4 md:px-6 py-2 rounded-full transition-all duration-300 font-bold uppercase tracking-widest text-[8px] md:text-[10px] border",
                     activeCategory === category 
                       ? "bg-primary text-black border-primary shadow-lg shadow-primary/20" 
                       : "bg-transparent text-primary/60 border-primary/20 hover:border-primary/40 hover:text-primary"
@@ -160,37 +160,37 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
         </div>
       </div>
 
-      <main className="max-w-5xl mx-auto px-6 py-16 pb-40">
-        <header className="mb-16 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-8">
-          <div className="space-y-4">
-            <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase italic">
+      <main className="max-w-5xl mx-auto px-4 md:px-6 py-8 md:py-16 pb-40">
+        <header className="mb-8 md:mb-16 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-2 md:space-y-4">
+            <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter uppercase italic">
               {searchQuery ? `Searching...` : "The Menu"}
             </h1>
             <div className="flex items-center justify-center md:justify-start gap-4">
-              <span className="w-16 h-1 bg-primary rounded-full" />
-              <p className="text-primary font-black text-xs uppercase tracking-[0.4em]">
+              <span className="w-12 md:w-16 h-1 bg-primary rounded-full" />
+              <p className="text-primary font-black text-[10px] md:text-xs uppercase tracking-[0.4em]">
                 {tableId}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3 bg-zinc-900/50 px-6 py-3 rounded-full border border-primary/10 shadow-xl">
-             <Film className="text-primary" size={16} />
-             <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">Premium Cinematic Dining</span>
+          <div className="flex items-center justify-center md:justify-start gap-3 bg-zinc-900/50 px-4 md:px-6 py-2 md:py-3 rounded-full border border-primary/10 shadow-xl">
+             <Film className="text-primary" size={14} />
+             <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-primary/60">Premium Cinematic Dining</span>
           </div>
         </header>
 
-        <div className="space-y-24">
+        <div className="space-y-16 md:space-y-24">
           {categorizedMenu.length > 0 ? (
             categorizedMenu.map(({ category, items }) => (
-              <section key={category} id={category} className="scroll-mt-64">
-                <div className="flex items-center gap-8 mb-12">
-                  <h3 className="text-2xl font-black italic uppercase tracking-widest text-primary shrink-0">
+              <section key={category} id={category} className="scroll-mt-64 md:scroll-mt-72">
+                <div className="flex items-center gap-4 md:gap-8 mb-8 md:mb-12">
+                  <h3 className="text-xl md:text-2xl font-black italic uppercase tracking-widest text-primary shrink-0">
                     {category}
                   </h3>
                   <div className="h-0.5 flex-1 bg-gradient-to-r from-primary/40 to-transparent" />
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
                   {items.map((item) => (
                     <MenuItemCard key={item.id} item={item} onAddToCart={addToCart} />
                   ))}
@@ -198,20 +198,20 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
               </section>
             ))
           ) : (
-            <div className="py-24 text-center space-y-8 bg-zinc-900/20 rounded-[4rem] border border-dashed border-primary/10">
+            <div className="py-16 md:py-24 text-center space-y-8 bg-zinc-900/20 rounded-[2rem] md:rounded-[4rem] border border-dashed border-primary/10">
               <div className="relative inline-block">
                 <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full" />
-                <div className="relative p-12 bg-zinc-900 rounded-full border border-primary/20 shadow-2xl">
-                  <Search size={48} className="text-primary/10" />
+                <div className="relative p-8 md:p-12 bg-zinc-900 rounded-full border border-primary/20 shadow-2xl">
+                  <Search className="w-8 h-8 md:w-12 md:h-12 text-primary/10" />
                 </div>
               </div>
               <div className="space-y-2">
-                <p className="text-white font-bold text-2xl">No items found</p>
-                <p className="text-primary/40 text-sm font-bold uppercase tracking-widest">Try another search keyword</p>
+                <p className="text-white font-bold text-xl md:text-2xl">No items found</p>
+                <p className="text-primary/40 text-[10px] md:text-sm font-bold uppercase tracking-widest">Try another search keyword</p>
               </div>
               <button 
                 onClick={() => setSearchQuery("")} 
-                className="inline-flex items-center gap-3 bg-primary text-black px-12 py-4 rounded-full font-black text-xs uppercase tracking-widest hover:bg-white transition-all shadow-lg"
+                className="inline-flex items-center gap-3 bg-primary text-black px-8 md:px-12 py-3 md:py-4 rounded-full font-black text-[10px] md:text-xs uppercase tracking-widest hover:bg-white transition-all shadow-lg"
               >
                 Clear Search <X size={14} />
               </button>
@@ -223,37 +223,37 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
       <button
         onClick={scrollToTop}
         className={cn(
-          "fixed bottom-28 right-8 z-[60] p-5 bg-zinc-900 border border-primary/30 shadow-2xl rounded-full text-primary transition-all duration-500 hover:bg-primary hover:text-black",
+          "fixed bottom-24 md:bottom-28 right-6 md:right-8 z-[60] p-4 md:p-5 bg-zinc-900 border border-primary/30 shadow-2xl rounded-full text-primary transition-all duration-500 hover:bg-primary hover:text-black",
           showBackToTop ? "translate-y-0 opacity-100 scale-100" : "translate-y-20 opacity-0 scale-50"
         )}
       >
-        <ArrowUp size={24} strokeWidth={4} />
+        <ArrowUp className="w-5 h-5 md:w-6 md:h-6" strokeWidth={4} />
       </button>
 
-      <footer className="bg-zinc-950 border-t border-primary/10 py-24 px-8">
-        <div className="max-w-5xl mx-auto flex flex-col items-center gap-12">
-          <div className="relative p-1.5 bg-primary rounded-full shadow-2xl shadow-primary/20">
+      <footer className="bg-zinc-950 border-t border-primary/10 py-16 md:py-24 px-6 md:px-8">
+        <div className="max-w-5xl mx-auto flex flex-col items-center gap-8 md:gap-12">
+          <div className="relative p-1 bg-primary rounded-full shadow-2xl shadow-primary/20">
             <Image 
               src={LOGO_URL} 
               alt="ART Cinemas Logo" 
-              width={72} 
-              height={72} 
+              width={64} 
+              height={64} 
               className="rounded-full" 
             />
           </div>
           
-          <div className="flex flex-col items-center gap-8 text-center">
-             <div className="flex items-center gap-4">
-               <span className="h-px w-10 bg-primary/20" />
-               <p className="font-medium text-primary/40 text-sm tracking-wide">ELITE CINEMATIC DINING EXPERIENCE</p>
-               <span className="h-px w-10 bg-primary/20" />
+          <div className="flex flex-col items-center gap-6 md:gap-8 text-center">
+             <div className="flex items-center gap-3 md:gap-4">
+               <span className="h-px w-8 md:w-10 bg-primary/20" />
+               <p className="font-medium text-primary/40 text-[10px] md:text-sm tracking-wide">ELITE CINEMATIC DINING EXPERIENCE</p>
+               <span className="h-px w-8 md:w-10 bg-primary/20" />
              </div>
              
              <Link href="https://www.getpik.in/" target="_blank" className="flex flex-col items-center gap-4 group">
-              <span className="text-[10px] font-black uppercase tracking-[0.5em] text-primary/20 group-hover:text-primary transition-colors">Digital Experience By</span>
-              <div className="px-12 py-5 bg-zinc-900 rounded-3xl border border-primary/10 flex items-center gap-5 transition-all group-hover:border-primary group-hover:bg-zinc-800 shadow-2xl">
-                <span className="text-primary font-black text-2xl tracking-tighter">GetPik</span>
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+              <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.5em] text-primary/20 group-hover:text-primary transition-colors">Digital Experience By</span>
+              <div className="px-8 md:px-12 py-4 md:py-5 bg-zinc-900 rounded-2xl md:rounded-3xl border border-primary/10 flex items-center gap-4 transition-all group-hover:border-primary group-hover:bg-zinc-800 shadow-2xl">
+                <span className="text-primary font-black text-xl md:text-2xl tracking-tighter">GetPik</span>
+                <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
               </div>
             </Link>
           </div>
