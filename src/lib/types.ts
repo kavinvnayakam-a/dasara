@@ -1,12 +1,12 @@
 export interface MenuItem {
-  id: string; // Changed from number to string for Firestore compatibility
+  id: string;
   name: string;
   category: string;
   description: string;
   price: number;
-  image: string;      // This will store the Firebase Storage URL
-  available: boolean;  // NEW: To track stock status
-  imageHint?: string; // Made optional as it's less critical with real photos
+  image: string;
+  available: boolean;
+  showImage?: boolean;
 }
 
 export interface CartItem extends MenuItem {
@@ -15,9 +15,13 @@ export interface CartItem extends MenuItem {
 
 export interface Order {
   id: string;
-  tableId: string;
+  tableId: string; // Used as composite "Screen X - Seat Y"
+  screenId?: string;
+  seatId?: string;
   items: CartItem[];
   totalPrice: number;
-  status: 'Received' | 'Preparing' | 'Served' | 'Completed';
-  timestamp: any; // Using 'any' or 'Timestamp' to handle Firestore Server Timestamps
+  status: 'Pending' | 'Received' | 'Preparing' | 'Served' | 'Completed';
+  timestamp: any;
+  orderNumber?: string;
+  helpRequested?: boolean;
 }

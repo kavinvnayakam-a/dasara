@@ -8,8 +8,7 @@ import {
 } from 'firebase/firestore';
 import { Order } from '@/lib/types';
 import { 
-  CheckCircle2, Printer, Square, CheckSquare, BellRing, 
-  MessageCircleQuestion, Settings, X, Save, Loader2, Check
+  CheckCircle2, Printer, Square, CheckSquare, X, Save, Check
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -60,7 +59,7 @@ export default function OrderManager() {
   }, [firestore]);
 
   const tableMap = orders.reduce((acc, order) => {
-    const key = order.tableId || 'Takeaway';
+    const key = order.tableId;
     if (!acc[key]) acc[key] = [];
     acc[key].push(order);
     return acc;
@@ -90,7 +89,7 @@ export default function OrderManager() {
       status: "Served", 
       helpRequested: false 
     });
-    toast({ title: "ART Cinema Treats Served!", description: "Session timer active." });
+    toast({ title: "ART Cinema Treats Served!" });
   };
 
   const resolveHelp = async (orderId: string) => {
@@ -122,7 +121,13 @@ export default function OrderManager() {
 
   if (!isMounted) return null;
 
-  const allTables = ["Takeaway", ...Array.from({ length: 12 }, (_, i) => (i + 1).toString())];
+  // Generate 25 composite IDs: "Screen 1 - Seat 1", etc.
+  const allSeatIds: string[] = [];
+  for (let s = 1; s <= 5; s++) {
+    for (let st = 1; st <= 5; st++) {
+      allSeatIds.push(`Screen ${s} - Seat ${st}`);
+    }
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -143,10 +148,9 @@ export default function OrderManager() {
           <h2 className="text-lg font-bold uppercase">{printSettings.storeName}</h2>
           <p className="text-xs">{printSettings.address}</p>
           <p className="text-xs">Ph: {printSettings.phone}</p>
-          <p className="text-xs">GST: {printSettings.gstin}</p>
         </div>
         <div className="flex justify-between font-bold mb-2 text-xs">
-          <span>Seat: {selectedTable}</span>
+          <span>{selectedTable}</span>
           <span>{printTime}</span>
         </div>
         <div className="border-b border-black mb-2 text-xs">
@@ -168,26 +172,30 @@ export default function OrderManager() {
         <p className="text-center mt-6 text-xs italic">{printSettings.footerMessage}</p>
       </div>
 
-      <div className="lg:col-span-1 grid grid-cols-2 gap-4 h-fit">
-        <button onClick={() => setShowSettings(true)} className="col-span-2 p-4 bg-stone-100 rounded-2xl border-2 border-slate-900 font-black flex items-center justify-center gap-2 text-xs mb-2">
-          <Settings size={16} /> RECEIPT SETUP
+      <div className="lg:col-span-1 h-[70vh] overflow-y-auto pr-2 space-y-4">
+        <button onClick={() => setShowSettings(true)} className="w-full p-4 bg-white rounded-2xl border-2 border-slate-900 font-black flex items-center justify-center gap-2 text-xs">
+          RECEIPT SETUP
         </button>
-        {allTables.map((tId) => {
-            const hasHelp = tableMap[tId]?.some(o => o.helpRequested);
-            return (
-                <button 
-                  key={tId} 
-                  onClick={() => setSelectedTable(tId)} 
-                  className={`p-6 rounded-[2rem] border-4 transition-all ${
-                    selectedTable === tId ? "bg-slate-900 text-white border-slate-900 shadow-[6px_6px_0_0_#e76876]" : 
-                    hasHelp ? "bg-rose-500 text-white border-slate-900 animate-pulse" :
-                    tableMap[tId]?.length ? "bg-rose-500 text-white border-slate-900" : "bg-emerald-500 text-white border-slate-900"
-                  }`}
-                >
-                  <span className="text-2xl font-black italic">{tId}</span>
-                </button>
-            )
-        })}
+        <div className="grid grid-cols-2 gap-3">
+          {allSeatIds.map((tId) => {
+              const hasHelp = tableMap[tId]?.some(o => o.helpRequested);
+              const isActive = tableMap[tId]?.length > 0;
+              const shortId = tId.replace('Screen ', 'S').replace(' - Seat ', '-');
+              return (
+                  <button 
+                    key={tId} 
+                    onClick={() => setSelectedTable(tId)} 
+                    className={`p-4 rounded-xl border-2 transition-all ${
+                      selectedTable === tId ? "bg-slate-900 text-white border-slate-900 shadow-[4px_4px_0_0_#d4af37]" : 
+                      hasHelp ? "bg-red-500 text-white border-slate-900 animate-pulse" :
+                      isActive ? "bg-primary text-black border-slate-900" : "bg-zinc-100 text-zinc-400 border-zinc-200"
+                    }`}
+                  >
+                    <span className="text-xs font-black italic">{shortId}</span>
+                  </button>
+              )
+          })}
+        </div>
       </div>
 
       <div className="lg:col-span-3 space-y-6">
@@ -195,23 +203,23 @@ export default function OrderManager() {
           <div className="animate-in fade-in duration-300">
             <div className="flex justify-between items-center bg-slate-900 p-6 rounded-[2.5rem] text-white mb-6 border-b-4 border-primary">
               <div>
-                <h3 className="text-3xl font-black italic uppercase tracking-tighter">SEAT {selectedTable}</h3>
-                <p className="text-[10px] text-primary font-bold uppercase">{tableMap[selectedTable]?.length || 0} ACTIVE THEATER TICKETS</p>
+                <h3 className="text-2xl font-black italic uppercase tracking-tighter">{selectedTable}</h3>
+                <p className="text-[10px] text-primary font-bold uppercase">{tableMap[selectedTable]?.length || 0} ACTIVE ORDERS</p>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => window.print()} className="bg-primary text-white px-4 py-3 rounded-xl font-black text-xs uppercase italic flex items-center gap-2 shadow-[4px_4px_0_0_#000]"><Printer size={16}/> Print Bill</button>
-                <button onClick={() => archiveTable(selectedTable)} className="bg-rose-500 text-white px-4 py-3 rounded-xl font-black text-xs uppercase italic shadow-[4px_4px_0_0_#000]">Clear Seat</button>
+                <button onClick={() => window.print()} className="bg-primary text-black px-4 py-3 rounded-xl font-black text-xs uppercase italic flex items-center gap-2 shadow-[4px_4px_0_0_#000]"><Printer size={16}/> Print</button>
+                <button onClick={() => archiveTable(selectedTable)} className="bg-red-500 text-white px-4 py-3 rounded-xl font-black text-xs uppercase italic shadow-[4px_4px_0_0_#000]">Clear</button>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {tableMap[selectedTable]?.map((order) => (
-                <div key={order.id} className={`bg-white border-4 border-slate-900 p-6 rounded-[2.5rem] shadow-xl relative flex flex-col ${order.helpRequested ? 'ring-8 ring-rose-500 ring-inset' : ''}`}>
+                <div key={order.id} className={`bg-white border-4 border-slate-900 p-6 rounded-[2.5rem] shadow-xl relative flex flex-col ${order.helpRequested ? 'ring-8 ring-red-500 ring-inset' : ''}`}>
                   
                   {order.helpRequested && (
-                    <div className="mb-4 bg-rose-500 p-4 rounded-2xl flex items-center justify-between">
-                        <span className="text-white font-black italic uppercase text-xs animate-bounce">Seat Needs Help!</span>
-                        <button onClick={() => resolveHelp(order.id)} className="bg-white text-rose-500 px-3 py-1 rounded-lg font-black uppercase text-[10px]">Resolve</button>
+                    <div className="mb-4 bg-red-500 p-4 rounded-2xl flex items-center justify-between text-white">
+                        <span className="font-black italic uppercase text-xs animate-bounce">Help Needed!</span>
+                        <button onClick={() => resolveHelp(order.id)} className="bg-white text-red-500 px-3 py-1 rounded-lg font-black uppercase text-[10px]">Resolve</button>
                     </div>
                   )}
 
@@ -224,7 +232,7 @@ export default function OrderManager() {
 
                   <div className="space-y-4 flex-1">
                     {order.status === 'Pending' && (
-                      <button onClick={() => approveOrder(order.id)} className="w-full bg-primary py-4 rounded-2xl font-black uppercase italic text-sm flex items-center justify-center gap-2 border-2 border-slate-900 shadow-[4px_4px_0_0_#000] mb-4 text-white">
+                      <button onClick={() => approveOrder(order.id)} className="w-full bg-primary py-4 rounded-2xl font-black uppercase italic text-sm flex items-center justify-center gap-2 border-2 border-slate-900 shadow-[4px_4px_0_0_#000] mb-4 text-black">
                         <Check size={18}/> Approve Ticket
                       </button>
                     )}
@@ -245,7 +253,7 @@ export default function OrderManager() {
 
                   <button 
                     onClick={() => triggerFinalServed(order.id)} 
-                    className={`mt-6 w-full py-4 rounded-2xl font-black uppercase italic text-xs flex items-center justify-center gap-2 border-2 border-slate-900 transition-all ${order.status === 'Served' ? 'bg-slate-100 text-slate-400 border-slate-200' : 'bg-emerald-500 text-white shadow-[4px_4px_0_0_#000] active:translate-y-1 active:shadow-none'}`}
+                    className={`mt-6 w-full py-4 rounded-2xl font-black uppercase italic text-xs flex items-center justify-center gap-2 border-2 border-slate-900 transition-all ${order.status === 'Served' ? 'bg-zinc-100 text-zinc-400 border-zinc-200' : 'bg-emerald-500 text-white shadow-[4px_4px_0_0_#000]'}`}
                     disabled={order.status === 'Served'}
                   >
                     <CheckCircle2 size={16}/> {order.status === 'Served' ? 'WATCHING SHOW' : 'FINAL SERVE'}
@@ -255,45 +263,31 @@ export default function OrderManager() {
             </div>
           </div>
         ) : (
-          <div className="h-full min-h-[400px] flex items-center justify-center bg-white border-4 border-dashed border-orange-200 rounded-[4rem] text-orange-200 font-black uppercase italic p-12 text-center">
-            Select an ART Cinemas seat to manage
+          <div className="h-full min-h-[400px] flex items-center justify-center bg-white border-4 border-dashed border-zinc-200 rounded-[3rem] text-zinc-300 font-black uppercase italic p-12 text-center">
+            Select a Seat to view orders
           </div>
         )}
       </div>
 
       {showSettings && (
         <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-[3rem] border-4 border-slate-900 p-8 flex flex-col gap-4 animate-in zoom-in-95">
+          <div className="bg-white w-full max-w-md rounded-[3rem] border-4 border-slate-900 p-8 flex flex-col gap-4">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-black uppercase italic tracking-tighter">Receipt Layout</h2>
               <button onClick={() => setShowSettings(false)} className="p-2 bg-slate-100 rounded-full"><X size={20}/></button>
             </div>
-            <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2">
+            <div className="space-y-4 overflow-y-auto max-h-[60vh]">
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-slate-400">Establishment Name</label>
-                <input className="w-full p-4 bg-orange-50 rounded-2xl font-bold outline-none focus:ring-2 ring-primary" value={printSettings.storeName} onChange={e => setPrintSettings({...printSettings, storeName: e.target.value})} />
+                <label className="text-[10px] font-black uppercase text-slate-400">Name</label>
+                <input className="w-full p-4 bg-zinc-50 rounded-2xl font-bold" value={printSettings.storeName} onChange={e => setPrintSettings({...printSettings, storeName: e.target.value})} />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase text-slate-400">Address</label>
-                <textarea className="w-full p-4 bg-orange-50 rounded-2xl font-bold outline-none h-24" value={printSettings.address} onChange={e => setPrintSettings({...printSettings, address: e.target.value})} />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase text-slate-400">Phone</label>
-                  <input className="w-full p-4 bg-orange-50 rounded-2xl font-bold" value={printSettings.phone} onChange={e => setPrintSettings({...printSettings, phone: e.target.value})} />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase text-slate-400">GSTIN</label>
-                  <input className="w-full p-4 bg-orange-50 rounded-2xl font-bold" value={printSettings.gstin} onChange={e => setPrintSettings({...printSettings, gstin: e.target.value})} />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-slate-400">Footer Note</label>
-                <input className="w-full p-4 bg-orange-50 rounded-2xl font-bold" value={printSettings.footerMessage} onChange={e => setPrintSettings({...printSettings, footerMessage: e.target.value})} />
+                <textarea className="w-full p-4 bg-zinc-50 rounded-2xl font-bold h-24" value={printSettings.address} onChange={e => setPrintSettings({...printSettings, address: e.target.value})} />
               </div>
             </div>
-            <button onClick={saveSettings} className="w-full bg-slate-900 text-primary py-5 rounded-3xl font-black uppercase italic flex items-center justify-center gap-2 shadow-[0_6px_0_0_#000] active:translate-y-1 active:shadow-none transition-all">
-              <Save size={20} /> Update Bill Layout
+            <button onClick={saveSettings} className="w-full bg-slate-900 text-primary py-5 rounded-3xl font-black uppercase italic shadow-[0_4px_0_0_#000]">
+              Save Layout
             </button>
           </div>
         </div>

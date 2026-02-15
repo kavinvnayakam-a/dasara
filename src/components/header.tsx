@@ -2,7 +2,7 @@
 
 import SessionTimer from "@/components/session-timer";
 import Image from 'next/image';
-import { Clock, ShoppingBag } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/dasara-finedine.firebasestorage.app/o/Art%20Cinemas%20Logo.jpeg?alt=media&token=0e8ee706-4ba1-458d-b2b9-d85434f8f2ba";
@@ -14,7 +14,8 @@ type HeaderProps = {
 };
 
 export function Header({ tableId, timeLeft }: HeaderProps) {
-  const isTakeaway = !tableId || tableId === "Takeaway";
+  // tableId format: "Screen X - Seat Y"
+  const displayId = tableId?.replace('Screen ', 'Sc ').replace(' - Seat ', ' / St ') || "No Seat";
 
   return (
     <header className="sticky top-0 z-50 w-full h-20 bg-black/80 backdrop-blur-xl border-b border-primary/20 shadow-2xl">
@@ -24,7 +25,7 @@ export function Header({ tableId, timeLeft }: HeaderProps) {
           <div className="
             relative 
             bg-primary 
-            h-12 w-12 
+            h-10 w-10 
             rounded-full 
             shadow-[0_0_15px_rgba(212,175,55,0.3)]
             flex items-center justify-center
@@ -34,8 +35,8 @@ export function Header({ tableId, timeLeft }: HeaderProps) {
             <Image 
               src={LOGO_URL} 
               alt="ART Cinemas Logo" 
-              width={44} 
-              height={44} 
+              width={40} 
+              height={40} 
               className="object-cover"
               priority
             />
@@ -58,27 +59,15 @@ export function Header({ tableId, timeLeft }: HeaderProps) {
             border border-primary/30
             shadow-inner
           ">
-            <div className={cn(
-              "relative z-10 w-10 h-10 rounded-xl flex flex-col items-center justify-center shadow-lg",
-              isTakeaway 
-                ? "bg-zinc-800 text-primary border border-primary/20" 
-                : "bg-primary text-black border border-primary"
-            )}>
-              {isTakeaway ? (
-                <ShoppingBag size={18} />
-              ) : (
-                <>
-                  <span className="text-[8px] font-black uppercase opacity-60 leading-none">Seat</span>
-                  <span className="text-sm font-black tracking-tight">{tableId}</span>
-                </>
-              )}
+            <div className="relative z-10 h-10 px-4 rounded-xl flex flex-col items-center justify-center bg-primary text-black border border-primary shadow-lg">
+               <span className="text-[10px] font-black tracking-tight uppercase italic">{displayId}</span>
             </div>
             
             <div className="relative z-10 flex flex-col justify-center ml-3">
               <div className="flex items-center gap-1.5 mb-0.5">
                 <Clock size={10} className="text-primary animate-pulse" />
                 <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest">
-                  {isTakeaway ? "Session" : "Show Time"}
+                  Show Time
                 </span>
               </div>
               <div className="text-primary font-mono font-black text-sm leading-none tabular-nums">

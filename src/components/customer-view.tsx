@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo, useEffect } from 'react';
@@ -11,17 +10,14 @@ import { Header } from '@/components/header';
 import { MenuItemCard } from '@/components/menu-item-card';
 import { CartSheet } from '@/components/cart-sheet';
 import { CartIcon } from '@/components/cart-icon';
+import TableSelection from '@/components/table-selection';
 import type { MenuItem } from '@/lib/types';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
-  MapPin, 
-  Clock as ClockIcon, 
-  ChevronRight, 
   Search, 
   ArrowUp, 
   X,
-  Heart,
   Film
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
@@ -32,7 +28,6 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
   const router = useRouter();
   const { clearCart, addToCart } = useCart();
   const [isCartOpen, setCartOpen] = useState(false);
-  const [showMenu, setShowMenu] = useState(!!tableId);
   const firestore = useFirestore();
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -70,7 +65,8 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
   });
 
   const categorizedMenu = useMemo(() => {
-    const categoryOrder = ['Cinematic Specials', 'Popcorn & Snacks', 'Appetizers', 'Main Course', 'Desserts', 'Beverages'];
+    // Prioritize Cinematic Combos in the first line
+    const categoryOrder = ['Cinematic Combos', 'Cinematic Specials', 'Popcorn & Snacks', 'Appetizers', 'Main Course', 'Desserts', 'Beverages'];
     
     const filtered = menuItems.filter(item => 
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -95,6 +91,10 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  if (!tableId) {
+    return <TableSelection />;
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -106,58 +106,9 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
     );
   }
 
-  if (!showMenu && !tableId) {
-    return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent opacity-50" />
-        
-        <div className="max-w-sm w-full space-y-12 text-center relative z-10">
-          <div className="space-y-6">
-            <div className="relative inline-block p-1 bg-primary rounded-full shadow-[0_0_50px_rgba(212,175,55,0.3)]">
-              <Image src={LOGO_URL} alt="ART Cinemas Logo" width={100} height={100} className="rounded-full" priority />
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-5xl font-bold text-white leading-tight">Elite Cinema</h2>
-              <p className="text-primary font-black uppercase tracking-[0.3em] text-[10px]">Premium Culinary Experience</p>
-            </div>
-          </div>
-
-          <div className="bg-zinc-900/40 backdrop-blur-xl p-8 rounded-[3rem] shadow-2xl space-y-6 text-left border border-primary/10">
-            <div className="flex items-center gap-4 group">
-              <div className="bg-primary/10 p-3 rounded-2xl text-primary border border-primary/20">
-                <MapPin size={20}/>
-              </div>
-              <div>
-                <p className="text-[10px] font-black uppercase text-primary/40 tracking-tight">Location</p>
-                <p className="font-bold text-primary/90">Premium Cinema Lounge</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 group">
-              <div className="bg-primary/10 p-3 rounded-2xl text-primary border border-primary/20">
-                <ClockIcon size={20}/>
-              </div>
-              <div>
-                <p className="text-[10px] font-black uppercase text-primary/40 tracking-tight">Experience</p>
-                <p className="font-bold text-primary/90">Curated Flavor Show</p>
-              </div>
-            </div>
-          </div>
-
-          <button 
-            onClick={() => setShowMenu(true)}
-            className="w-full bg-primary text-black py-6 rounded-full font-black uppercase tracking-widest shadow-2xl shadow-primary/20 flex items-center justify-center gap-3 hover:bg-white transition-all transform active:scale-95"
-          >
-            Explore Menu
-            <ChevronRight size={20} />
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-black">
-      <Header tableId={tableId || "Takeaway"} onCartClick={() => setCartOpen(true)} timeLeft={timeLeft} />
+      <Header tableId={tableId} onCartClick={() => setCartOpen(true)} timeLeft={timeLeft} />
       
       <div className="sticky top-20 z-30 bg-black/90 backdrop-blur-xl border-b border-primary/10 px-4 py-6 space-y-4">
         <div className="max-w-5xl mx-auto flex flex-col gap-6">
@@ -213,7 +164,7 @@ export default function CustomerView({ tableId }: { tableId: string | null, mode
             <div className="flex items-center justify-center md:justify-start gap-4">
               <span className="w-16 h-1 bg-primary rounded-full" />
               <p className="text-primary font-black text-xs uppercase tracking-[0.4em]">
-                {tableId ? `Seat ${tableId}` : 'Cinema Take-Away'}
+                {tableId}
               </p>
             </div>
           </div>
